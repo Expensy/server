@@ -15,7 +15,7 @@ class UsersController extends ApiController
 
   function __construct(UserRepository $userRepository, UserTransformer $userTransformer)
   {
-    //$this->middleware('jwt.auth', ['except' => ['create']]);
+    $this->middleware('jwt.auth', ['except' => ['store']]);
 
     $this->userRepository = $userRepository;
     $this->userTransformer = $userTransformer;
