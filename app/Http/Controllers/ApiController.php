@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\controllers;
+namespace App\Http\Controllers;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\Response as IlluminateResponse;
