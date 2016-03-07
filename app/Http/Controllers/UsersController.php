@@ -4,7 +4,6 @@ namespace App\Http\controllers;
 
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use App\Transformers\UserTransformer;
 
@@ -53,7 +52,7 @@ class UsersController extends ApiController
       return $this->respondFailedValidation($validation->messages);
     }
 
-    $inputs['password'] = Hash::make($request->input('password'));
+    $inputs['password'] = bcrypt($request->input('password'));
 
     $createdUser = $this->userRepository->create($inputs);
 
@@ -115,7 +114,7 @@ class UsersController extends ApiController
     }
 
     if ($password = $request->input('password')) {
-      $inputs['password'] = Hash::make($password);
+      $inputs['password'] = bcrypt($password);
     }
 
     $updatedUser = $this->userRepository->update($id, $inputs);

@@ -25,7 +25,8 @@
   },
   "autoload": {
     "classmap": [
-      "database"
+      "database",
+      "tests"
     ],
     "files": [
       "vendor/pirminis/maybe-monad/lib/global.php"
@@ -36,7 +37,7 @@
   },
   "autoload-dev": {
     "classmap": [
-      "tests/TestCase.php"
+      "tests"
     ]
   },
   "scripts": {

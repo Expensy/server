@@ -31,7 +31,7 @@ Route::group(['middleware' => ['web']], function () {
 });
 
 Route::group(['prefix' => 'api'], function () {
-  Route::post('authenticate', 'AuthenticateController@authenticate');
+  Route::post('authenticate', 'AuthController@authenticate');
 
   Route::group(['prefix' => 'v1'], function () {
     Route::resource('users', 'UsersController');

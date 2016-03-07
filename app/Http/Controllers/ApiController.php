@@ -3,8 +3,8 @@
 namespace App\Http\controllers;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response as IlluminateResponse;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ApiController extends Controller
 {
@@ -34,9 +34,9 @@ class ApiController extends Controller
 
   public function canConnectedUserEditElement($id)
   {
-    //TODO : fix me
-    return true;
-    //return Auth::user()->id == $id;
+    $user = JWTAuth::parseToken()->toUser();
+
+    return $user->id === $id;
   }
 
   /**
