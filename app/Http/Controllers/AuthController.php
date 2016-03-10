@@ -21,17 +21,14 @@ class AuthController extends ApiController
     $credentials = $request->only('email', 'password');
 
 
-    $auth = $this->authRepository->authenticate($credentials);
+    $token = $this->authRepository->authenticate($credentials);
 
-    if ($auth['error'] == AuthEnum::FORBIDDEN) {
+    if (!$token) {
       return $this->respondForbidden();
-
-    } else if ($auth['error'] == AuthEnum::INTERNAL_ERROR) {
-      return $this->respondInternalError('Can not create token');
     }
 
     return $this->respond([
-        'token' => $auth['token']
+        'token' => $token
     ]);
   }
 }

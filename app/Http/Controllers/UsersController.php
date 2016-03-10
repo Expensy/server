@@ -32,7 +32,7 @@ class UsersController extends ApiController
     $users = $this->userRepository->filter($request->all());
 
     return $this->respondWithPagination($users, [
-        'data' => $this->userTransformer->transformCollection($users->items())
+        'items' => $this->userTransformer->transformCollection($users->items())
     ]);
   }
 
@@ -56,9 +56,7 @@ class UsersController extends ApiController
 
     $createdUser = $this->userRepository->create($inputs);
 
-    return $this->respondCreated([
-        'data' => $this->userTransformer->fullTransform($createdUser)
-    ]);
+    return $this->respondCreated($this->userTransformer->fullTransform($createdUser));
   }
 
 
@@ -79,9 +77,7 @@ class UsersController extends ApiController
     }
 
 
-    return $this->respond([
-        'data' => $this->userTransformer->fullTransform($user)
-    ]);
+    return $this->respond($this->userTransformer->fullTransform($user));
   }
 
 
@@ -119,9 +115,7 @@ class UsersController extends ApiController
 
     $updatedUser = $this->userRepository->update($id, $inputs);
 
-    return $this->respond([
-        'data' => $this->userTransformer->fullTransform($updatedUser)
-    ]);
+    return $this->respond($this->userTransformer->fullTransform($updatedUser));
   }
 
 

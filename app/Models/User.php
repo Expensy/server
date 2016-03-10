@@ -54,4 +54,9 @@ class User extends ApiModel implements
   protected $rulesForUpdate = [
       'password_old' => ['old_password', 'required_with:password']
   ];
+
+  public function projects()
+  {
+    return $this->belongsToMany('App\Models\Project');
+  }
 }

@@ -14,7 +14,7 @@ class AuthControllerTest extends TestCase
     parent::setUp();
 
     $this->credentials = [
-        'email'    => 'testing@testing.com',
+        'email'    => 'testing-auth@testing.com',
         'password' => bcrypt('password')
     ];
 
@@ -29,9 +29,7 @@ class AuthControllerTest extends TestCase
   {
     $call = $this->json('POST', 'api/authenticate', $this->credentials);
 
-    $call->seeJsonStructure([
-        'token'
-    ]);
+    $call->assertResponseOK();
   }
 
   /** @test */

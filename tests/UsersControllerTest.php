@@ -7,7 +7,7 @@ use Underscore\Types\Arrays;
 
 class UsersControllerTest extends ApiTester
 {
-  protected $url = 'api/v1/users';
+  protected $url = 'api/v1/users/%';
 
   use DatabaseMigrations, DatabaseTransactions;
 
@@ -21,10 +21,15 @@ class UsersControllerTest extends ApiTester
   {
     factory(App\Models\User::class, 3)->create();
 
-    $call = $this->getJson($this->url);
+    dd($this->createUrl($this->url));
+    $call = $this->getJson($this->createUrl($this->url));
+
+    $this->assertResponseOk();
 
     $call->seeJsonStructure([
-        'data',
+        'items' => [
+            '*' => ['id', 'name', 'email']
+        ],
         'paginate'
     ]);
   }
@@ -36,7 +41,7 @@ class UsersControllerTest extends ApiTester
 
     $this
         ->setAuthentication(AuthEnum::NONE)
-        ->getJson($this->url);
+        ->getJson($this->createUrl($this->url));
 
     $this->assertResponseStatus(400);
   }
@@ -48,7 +53,7 @@ class UsersControllerTest extends ApiTester
 
     $this
         ->setAuthentication(AuthEnum::WRONG)
-        ->getJson($this->url);
+        ->getJson($this->createUrl($this->url));
 
     $this->assertResponseStatus(400);
   }
@@ -59,15 +64,13 @@ class UsersControllerTest extends ApiTester
   {
     $user = factory(App\Models\User::class, 1)->create();
 
-    $call = $this->getJson($this->url . '/' . $user->id);
+    $call = $this->getJson($this->createUrl($this->url, $user->id));
 
     $this->assertResponseOk();
     $call->seeJsonEquals([
-        'data' => [
-            'id'    => $user->id,
-            'name'  => $user->name,
-            'email' => $user->email
-        ]
+        'id'    => $user->id,
+        'name'  => $user->name,
+        'email' => $user->email
     ]);
   }
 
@@ -78,7 +81,7 @@ class UsersControllerTest extends ApiTester
 
     $this
         ->setAuthentication(AuthEnum::NONE)
-        ->getJson($this->url . '/' . $user->id);
+        ->getJson($this->createUrl($this->url, $user->id));
 
     $this->assertResponseStatus(400);
   }
@@ -90,53 +93,82 @@ class UsersControllerTest extends ApiTester
 
     $this
         ->setAuthentication(AuthEnum::WRONG)
-        ->getJson($this->url . '/' . $user->id);
+        ->getJson($this->createUrl($this->url, $user->id));
 
     $this->assertResponseStatus(400);
   }
 
   /** @test */
-  public function it_fetches_a_single_user_404_if_a_user_is_not_found()
+  public function it_fetches_a_single_user_404_if_not_found()
   {
-    $this->getJson($this->url . '/0');
+    $this->getJson($this->createUrl($this->url, 0));
     $this->assertResponseStatus(404);
   }
 
   /** @test */
-  public function it_creates_a_new_user_given_valid_parameters()
+  public function it_creates_a_new_user()
   {
     $user = factory(App\Models\User::class)->make();
     $data = Arrays::merge($user->toArray(), ['password' => 'password']);
 
-    $this->postJson($this->url, $data);
+    $call = $this->postJson($this->createUrl($this->url), $data);
 
     $this->assertResponseStatus(201);
+    $call->seeJson([
+        'id'    => 2, //TODO fix this number
+        'email' => $user->email,
+        'name'  => $user->name
+    ]);
   }
 
   /** @test */
-  public function it_throw_a_bad_request_error_if_a_new_user_request_fails_validation()
+  public function it_creates_a_new_user_400_if_validation_fails()
   {
-    $this->postJson($this->url, []);
+    $this->postJson($this->createUrl($this->url), []);
 
     $this->assertResponseStatus(400);
   }
 
   /** @test */
-  public function it_updates_the_connected_user_given_valid_parameters()
+  public function it_creates_a_new_user_400_if_not_authenticated()
+  {
+    $user = factory(App\Models\User::class)->make();
+    $data = Arrays::merge($user->toArray(), ['password' => 'password']);
+
+    $this
+        ->setAuthentication(AuthEnum::NONE)
+        ->postJson($this->createUrl($this->url), $data);
+
+    $this->assertResponseStatus(400);
+  }
+
+  /** @test */
+  public function it_creates_a_new_user_400_if_wrong_authentication()
+  {
+    $user = factory(App\Models\User::class)->make();
+    $data = Arrays::merge($user->toArray(), ['password' => 'password']);
+
+    $this
+        ->setAuthentication(AuthEnum::WRONG)
+        ->postJson($this->createUrl($this->url), $data);
+
+    $this->assertResponseStatus(400);
+  }
+
+  /** @test */
+  public function it_updates_the_connected_user()
   {
     $connectedUser = $this->createConnectedUser();
 
-    $call = $this->putJson($this->url . '/' . $connectedUser->id, [
+    $call = $this->putJson($this->createUrl($this->url, $connectedUser->id), [
         'name' => "New Name"
     ]);
 
     $this->assertResponseStatus(200);
     $call->seeJson([
-        'data' => [
-            'id'    => $this->connectedUser->id,
-            'email' => $this->connectedUser->email,
-            'name'  => "New Name"
-        ]
+        'id'    => $this->connectedUser->id,
+        'email' => $this->connectedUser->email,
+        'name'  => "New Name"
     ]);
   }
 
@@ -145,7 +177,7 @@ class UsersControllerTest extends ApiTester
   {
     $connectedUser = $this->createConnectedUser();
 
-    $this->putJson($this->url . '/' . $connectedUser->id, [
+    $this->putJson($this->createUrl($this->url, $connectedUser->id), [
         'email' => "wrongemail"
     ]);
 
@@ -153,13 +185,13 @@ class UsersControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_updates_the_connected_user_400_error_if_not_authenticated_for_update()
+  public function it_updates_the_connected_user_400_if_not_authenticated_()
   {
     $connectedUser = $this->createConnectedUser();
 
     $this
         ->setAuthentication(AuthEnum::NONE)
-        ->putJson($this->url . '/' . $connectedUser->id, [
+        ->putJson($this->createUrl($this->url, $connectedUser->id), [
             'name' => "New Name"
         ]);
 
@@ -167,13 +199,13 @@ class UsersControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_updates_the_connected_user_400_error_if_wrong_authenticated_for_update()
+  public function it_updates_the_connected_user_400_if_wrong_authenticated()
   {
     $connectedUser = $this->createConnectedUser();
 
     $this
         ->setAuthentication(AuthEnum::NONE)
-        ->putJson($this->url . '/' . $connectedUser->id, [
+        ->putJson($this->createUrl($this->url, $connectedUser->id), [
             'name' => "New Name"
         ]);
 
@@ -181,13 +213,13 @@ class UsersControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_updates_the_connected_user_403_error_if_a_user_is_not_authorized_to_update_user()
+  public function it_updates_the_connected_user_403_if_not_authorized()
   {
     $this->createConnectedUser();
 
     $user = factory(App\Models\User::class, 1)->create();
 
-    $this->putJson($this->url . '/' . $user->id, [
+    $this->putJson($this->createUrl($this->url, $user->id), [
         'name' => "New name"
     ]);
 
@@ -195,11 +227,11 @@ class UsersControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_updates_the_connected_user_404_error_if_an_updated_user_does_not_exists()
+  public function it_updates_the_connected_user_404_if_not_found()
   {
     $this->createConnectedUser();
 
-    $this->putJson($this->url . '/0', [
+    $this->putJson($this->createUrl($this->url, 0), [
         'name' => "New name"
     ]);
 
@@ -211,29 +243,53 @@ class UsersControllerTest extends ApiTester
   {
     $connectedUser = $this->createConnectedUser();
 
-    $this->deleteJson($this->url . '/' . $connectedUser->id);
+    $this->deleteJson($this->createUrl($this->url, $connectedUser->id));
 
     $this->assertResponseStatus(204);
   }
 
   /** @test */
-  public function it_deletes_a_user_403_error_if_a_user_is_not_authorized_to_delete_user()
+  public function it_deletes_a_user_400_if_not_authenticated()
+  {
+    $connectedUser = $this->createConnectedUser();
+
+    $this
+        ->setAuthentication(AuthEnum::NONE)
+        ->deleteJson($this->createUrl($this->url, $connectedUser->id));
+
+    $this->assertResponseStatus(400);
+  }
+
+  /** @test */
+  public function it_deletes_a_user_400_if_wrong_authentication()
+  {
+    $connectedUser = $this->createConnectedUser();
+
+    $this
+        ->setAuthentication(AuthEnum::WRONG)
+        ->deleteJson($this->createUrl($this->url, $connectedUser->id));
+
+    $this->assertResponseStatus(400);
+  }
+
+  /** @test */
+  public function it_deletes_a_user_403_if_not_authorized()
   {
     $this->createConnectedUser();
 
     $user = factory(App\Models\User::class, 1)->create();
 
-    $this->deleteJson($this->url . '/' . $user->id);
+    $this->deleteJson($this->createUrl($this->url, $user->id));
 
     $this->assertResponseStatus(403);
   }
 
   /** @test */
-  public function it_throws_a_404_error_if_a_deleted_user_does_not_exists()
+  public function it_throws_a_404_if_not_found()
   {
     $this->createConnectedUser();
 
-    $this->deleteJson($this->url . '/0');
+    $this->deleteJson($this->createUrl($this->url, 0));
 
     $this->assertResponseStatus(404);
   }

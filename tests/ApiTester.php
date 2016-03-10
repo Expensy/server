@@ -1,6 +1,7 @@
 <?php
 
 use Helpers\AuthEnum;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Underscore\Types\Arrays;
 
 class ApiTester extends TestCase
@@ -13,6 +14,8 @@ class ApiTester extends TestCase
   {
     parent::setUp();
     Artisan::call('migrate');
+
+    $this->createConnectedUser();
   }
 
   protected function getJson($url, array $parameters = [], array $headers = [])
@@ -38,15 +41,20 @@ class ApiTester extends TestCase
   protected function callJson($url, $method = 'GET', array $parameters = [], array $headers)
   {
     $authHeaders = [];
+
     switch ($this->authEnum) {
-      case AuthEnum::CORRECT :
-        $this->createConnectedUser();
-        $token = $this->authenticate();
-        $authHeaders = ['HTTP_Authorization' => 'Bearer' . $token];
+      case AuthEnum::NONE :
         break;
 
       case AuthEnum::WRONG :
-        $authHeaders = ['HTTP_Authorization' => 'Bearer wrongtoken.wrongtoken.wrongtoken'];
+        $authHeaders = ['Authorization' => 'Bearer wrongtoken.wrongtoken.wrongtoken'];
+        break;
+
+      case AuthEnum::CORRECT :
+      default :
+        $this->createConnectedUser();
+        $token = $this->authenticate();
+        $authHeaders = ['Authorization' => 'Bearer ' . $token];
         break;
     }
 
@@ -72,6 +80,13 @@ class ApiTester extends TestCase
     return $this->connectedUser;
   }
 
+  protected function setAuthentication(int $authEnum)
+  {
+    $this->authEnum = $authEnum;
+
+    return $this;
+  }
+
   /**
    * Creates a User into the database and automatically log in
    * @return static
@@ -81,10 +96,12 @@ class ApiTester extends TestCase
     return JWTAuth::fromUser($this->connectedUser);
   }
 
-  protected function setAuthentication(int $authEnum)
+  protected function createUrl($url, ...$args)
   {
-    $this->authEnum = $authEnum;
+    if (count($args) === 0) {
+      return str_replace('/%d', '', $this->url);
+    }
 
-    return $this;
+    return vsprintf($url, $args);
   }
 }
