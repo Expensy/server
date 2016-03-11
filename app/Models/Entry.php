@@ -8,7 +8,7 @@ class Entry extends ApiModel
 {
   use softDeletes;
 
-  protected $dates = ['deleted_at'];
+  protected $dates = ['date'];
 
   /**
    * The database table used by the model.
@@ -17,26 +17,25 @@ class Entry extends ApiModel
    */
   protected $table = 'entries';
 
-  protected $fillable = ['title', 'price', 'date', 'content', 'user_id', 'category_id'];
-
-  protected $notifiable = ['title', 'price', 'date', 'content'];
+  protected $fillable = ['title', 'price', 'date', 'content'];
 
   protected $commonRules = [
-      'title' => 'required',
-      'price' => ['required', 'integer', 'min:0'],
-      'date'  => ['required', 'date']
+      'title'       => ['required'],
+      'price'       => ['required', 'integer', 'min:0'],
+      'date'        => ['required', 'date'],
+      'category_id' => ['required', 'exists:categories,id']
   ];
 
   protected $rulesForCreation = [];
   protected $rulesForUpdate = [];
 
-  public function user()
+  public function project()
   {
-    return $this->belongsTo('User');
+    return $this->belongsTo('App\Models\Project');
   }
 
   public function category()
   {
-    return $this->belongsTo('Category');
+    return $this->belongsTo('App\Models\Category');
   }
 }

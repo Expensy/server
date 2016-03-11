@@ -29,4 +29,9 @@ class Category extends ApiModel
   {
     return $this->belongsTo('App\Models\Project');
   }
+
+  public function entries()
+  {
+    return $this->hasMany('App\Models\Entry');
+  }
 }

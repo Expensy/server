@@ -1,158 +1,159 @@
 <?php
 
-use Arato\Push\PushService;
-use Arato\Repositories\EntryRepository;
-use Arato\Repositories\UserRepository;
-use controllers\ApiController;
+namespace App\Http\controllers;
+
+use App\Repositories\CategoryRepository;
+use App\Repositories\EntryRepository;
+use App\Repositories\ProjectRepository;
+use App\Transformers\EntryTransformer;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use Arato\Transformers\EntryTransformer;
 use Underscore\Types\Arrays;
 
 class EntriesController extends ApiController
 {
-    protected $entryTransformer;
-    protected $entryRepository;
-    protected $userRepository;
+  protected $entryTransformer;
+  protected $entryRepository;
+  protected $projectRepository;
+  private $categoryRepository;
 
-    function __construct(EntryTransformer $entryTransformer, EntryRepository $entryRepository, UserRepository $userRepository)
-    {
-        $this->beforeFilter('auth.basic');
+  function __construct(EntryRepository $entry, EntryTransformer $entryTransformer, ProjectRepository $projectRepository, CategoryRepository $categoryRepository)
+  {
+    $this->middleware('jwt.auth');
+    $this->middleware('expensy.project');
 
-        $this->entryTransformer = $entryTransformer;
-        $this->entryRepository = $entryRepository;
-        $this->userRepository = $userRepository;
+    $this->entryRepository = $entry;
+    $this->entryTransformer = $entryTransformer;
+    $this->projectRepository = $projectRepository;
+    $this->categoryRepository = $categoryRepository;
+  }
+
+  /**
+   * Display a listing of the resource.
+   *
+   * @param Request $request
+   * @param int     $projectId
+   *
+   * @return Response
+   */
+  public function index(Request $request, int $projectId)
+  {
+    $filters = Arrays::merge($request->all(), ['project_id' => $projectId]);
+    $entries = $this->entryRepository->filter($filters);
+
+    return $this->respondWithPagination($entries, [
+        'items' => $this->entryTransformer->transformCollection($entries->items())
+    ]);
+  }
+
+  /**
+   * Store a newly created resource in storage.
+   *
+   * @param Request $request
+   * @param int     $projectId
+   *
+   * @return Response
+   */
+  public function store(Request $request, int $projectId)
+  {
+    $inputs = $request->all();
+
+    $validation = $this->entryRepository->isValidForCreation('App\Models\Entry', $inputs);
+
+    if (!$validation->passes) {
+      return $this->respondFailedValidation($validation->messages);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @param null $userId
-     *
-     * @return Response
-     */
-    public function index($userId = null)
-    {
-        if (!is_null($userId)) {
-            $user = $this->userRepository->find($userId);
+    $createdEntry = $this->entryRepository->create($inputs);
+    $project = $this->projectRepository->find($projectId);
+    $project->categories()->save($createdEntry);
+    $category = $this->categoryRepository->find($inputs['category_id']);
+    $category->entries()->save($createdEntry);
 
-            if (!$user) {
-                return $this->respondNotFound('User does not exist.');
-            }
-        }
+    return $this->respondCreated($this->entryTransformer->fullTransform($createdEntry));
+  }
 
-        $filters = Arrays::merge(Input::all(), ['userId' => $userId]);
-        $entrys = $this->entryRepository->filter($filters);
 
-        return $this->respondWithPagination($entrys, [
-            'data' => $this->entryTransformer->transformCollection($entrys->all())
-        ]);
+  /**
+   * Display the specified resource.
+   *
+   * @param Request $request
+   * @param         $projectId
+   * @param         $entryId
+   *
+   * @return Response
+   * @internal param int $id
+   *
+   */
+  public function show(Request $request, $projectId, $entryId)
+  {
+    $entry = $this->entryRepository->find($entryId);
+
+    if (!$entry) {
+      return $this->respondNotFound('Entry does not exist.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @return Response
-     */
-    public function store()
-    {
-        $inputs = Input::all();
+    return $this->respond($this->entryTransformer->fullTransform($entry));
+  }
 
-        $validation = $this->entryRepository->isValidForCreation('Entry', $inputs);
 
-        if (!$validation->passes) {
-            return $this->respondFailedValidation($validation->messages);
-        }
+  /**
+   * Update the specified resource in storage.
+   *
+   * @param Request $request
+   * @param         $projectId
+   * @param         $entryId
+   *
+   * @return Response
+   * @internal param int $id
+   *
+   */
+  public function update(Request $request, $projectId, $entryId)
+  {
+    $entry = $this->entryRepository->find($entryId);
+    $inputs = $request->all();
 
-        $inputs['user_id'] = Auth::user()->id;
-        $createdEntry = $this->entryRepository->create($inputs);
+    if (!$entry) {
+      return $this->respondNotFound('Entry does not exist.');
+    }
+    $validation = $this->entryRepository->isValidForUpdate('App\Models\Entry', $inputs);
 
-        $response = [
-            'data' => $this->entryTransformer->fullTransform($createdEntry)
-        ];
-
-        return $this->respondCreated($response);
+    if (!$validation->passes) {
+      return $this->respondFailedValidation($validation->messages);
     }
 
+    $updatedEntry = $this->entryRepository->update($entryId, $inputs);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int $id
-     *
-     * @return Response
-     */
-    public function show($id)
-    {
-        $entry = $this->entryRepository->find($id);
-
-        if (!$entry) {
-            return $this->respondNotFound('Entry does not exist.');
-        }
-
-        return $this->respond([
-            'data' => $this->entryTransformer->fullTransform($entry)
-        ]);
+    $category = $this->categoryRepository->find($inputs['category_id']);
+    if ($inputs['category_id'] !== $entry->categoryId) {
+      $category->entries()->save($updatedEntry);
     }
 
+    return $this->respond($this->entryTransformer->fullTransform($updatedEntry));
+  }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  int $id
-     *
-     * @return Response
-     */
-    public function update($id)
-    {
-        $entry = $this->entryRepository->find($id);
-        $inputs = Input::all();
-        $inputs['id'] = $id;
 
-        if (!$entry) {
-            return $this->respondNotFound('Entry does not exist.');
-        }
+  /**
+   * Remove the specified resource from storage.
+   *
+   * @param Request $request
+   * @param         $projectId
+   * @param         $entryId
+   *
+   * @return Response
+   * @internal param int $id
+   *
+   */
+  public function destroy(Request $request, $projectId, $entryId)
+  {
+    $entry = $this->entryRepository->find($entryId);
 
-        if (!$this->canConnectedUserEditElement($entry['user_id'])) {
-            return $this->respondForbidden();
-        }
-        $validation = $this->entryRepository->isValidForUpdate('Entry', $inputs);
-
-        if (!$validation->passes) {
-            return $this->respondFailedValidation($validation->messages);
-        }
-
-        $inputs['user_id'] = Auth::user()->id;
-        $updatedEntry = $this->entryRepository->update($id, $inputs);
-
-        $response = [
-            'data' => $this->entryTransformer->fullTransform($updatedEntry)
-        ];
-
-        return $this->respond($response);
+    if (!$entry) {
+      return $this->respondNotFound('Entry does not exist.');
     }
 
+    $this->entryRepository->delete($entryId);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int $id
-     *
-     * @return Response
-     */
-    public function destroy($id)
-    {
-        $entry = $this->entryRepository->find($id);
-
-        if (!$entry) {
-            return $this->respondNotFound('Entry does not exist.');
-        }
-
-        if (!$this->canConnectedUserEditElement($entry['user_id'])) {
-            return $this->respondForbidden();
-        }
-
-        $this->entryRepository->delete($id);
-
-        return $this->respondNoContent();
-    }
+    return $this->respondNoContent();
+  }
 }
