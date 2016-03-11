@@ -111,7 +111,7 @@ class ProjectsControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_fetches_a_single_project_403_if_not_allowed()
+  public function it_fetches_a_single_project_403_if_forbidden()
   {
     $user = factory(App\Models\User::class)->create();
     $project = factory(App\Models\Project::class)->create();
@@ -200,9 +200,7 @@ class ProjectsControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this
-        ->setAuthentication(AuthEnum::NONE)
-        ->putJson($this->createUrl($this->url, $project->id), []);
+    $this->putJson($this->createUrl($this->url, $project->id), []);
 
     $this->assertResponseStatus(400);
   }
@@ -240,7 +238,7 @@ class ProjectsControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_updates_the_project_403_if_not_authorized()
+  public function it_updates_the_project_403_if_forbidden()
   {
     $user = factory(App\Models\User::class)->create();
     $project = factory(App\Models\Project::class)->create();
@@ -305,7 +303,7 @@ class ProjectsControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_deletes_a_project_403_if_not_authorized()
+  public function it_deletes_a_project_403_if_forbidden()
   {
     $user = factory(App\Models\User::class)->create();
     $project = factory(App\Models\Project::class)->create();
@@ -317,7 +315,7 @@ class ProjectsControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_deletes_a_project_403_if_notFound()
+  public function it_deletes_a_project_404_if_not_found()
   {
     $this->deleteJson($this->createUrl($this->url, 0));
 
@@ -369,7 +367,7 @@ class ProjectsControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_adds_member_403_if_not_authorized()
+  public function it_adds_member_403_if_forbidden()
   {
     $user1 = factory(App\Models\User::class)->create();
     $project = factory(App\Models\Project::class)->create();
@@ -450,7 +448,7 @@ class ProjectsControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_deletes_member_403_if_not_authorized()
+  public function it_deletes_member_403_if_forbidden()
   {
     $user1 = factory(App\Models\User::class)->create();
     $user2 = factory(App\Models\User::class)->create();

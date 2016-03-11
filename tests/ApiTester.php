@@ -98,10 +98,14 @@ class ApiTester extends TestCase
 
   protected function createUrl($url, ...$args)
   {
-    if (count($args) === 0) {
-      return str_replace('/%d', '', $this->url);
+    foreach ($args as $arg) {
+      $pos = strpos($url, '%d');
+      if ($pos !== false) {
+        $url = substr_replace($url, $arg, $pos, strlen('%d'));
+      }
     }
+    $url = str_replace('/%d', '', $url);
 
-    return vsprintf($url, $args);
+    return $url;
   }
 }

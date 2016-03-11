@@ -189,7 +189,7 @@ class UsersControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_updates_the_connected_user_403_if_not_authorized()
+  public function it_updates_the_connected_user_403_if_forbidden()
   {
     $this->createConnectedUser();
 
@@ -249,7 +249,7 @@ class UsersControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_deletes_a_user_403_if_not_authorized()
+  public function it_deletes_a_user_403_if_forbidden()
   {
     $this->createConnectedUser();
 

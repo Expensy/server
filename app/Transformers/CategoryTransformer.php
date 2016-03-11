@@ -6,38 +6,31 @@ use Underscore\Types\Arrays;
 
 class CategoryTransformer extends Transformer
 {
-    public $userTransformer;
+  function __construct() { }
 
-    function __construct(UserTransformer $userTransformer)
-    {
-        $this->userTransformer = $userTransformer;
-    }
+  public function basicTransform($item)
+  {
+    return [
+        'id'    => $item['id'],
+        'title' => $item['title']
+    ];
+  }
 
+  public function extendedTransform($item)
+  {
+    return Arrays::merge(
+        $this->basicTransform($item),
+        [
+            'color'      => $item['color'],
+            'created_at' => $item['created_at']->toIso8601String(),
+            'updated_at' => $item['updated_at']->toIso8601String()
+        ]);
+  }
 
-    public function basicTransform($item)
-    {
-        return [
-            'id'    => $item['id'],
-            'title' => $item['title']
-        ];
-    }
-
-    public function extendedTransform($item)
-    {
-        return Arrays::merge(
-            $this->basicTransform($item),
-            [
-                'color'      => $item['color'],
-                'user'       => $this->userTransformer->basicTransform($item->user),
-                'created_at' => $item['created_at']->toIso8601String(),
-                'updated_at' => $item['updated_at']->toIso8601String()
-            ]);
-    }
-
-    public function fullTransform($item)
-    {
-        return Arrays::merge(
-            $this->extendedTransform($item),
-            []);
-    }
+  public function fullTransform($item)
+  {
+    return Arrays::merge(
+        $this->extendedTransform($item),
+        []);
+  }
 }

@@ -2,156 +2,147 @@
 
 namespace App\Http\controllers;
 
+use App\Repositories\ProjectRepository;
+use Illuminate\Http\Request;
 use App\Repositories\CategoryRepository;
-use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Response;
-use APp\Transformers\CategoryTransformer;
+use App\Transformers\CategoryTransformer;
 use Underscore\Types\Arrays;
 
 class CategoriesController extends ApiController
 {
   protected $categoryTransformer;
   protected $categoryRepository;
-  protected $userRepository;
+  protected $projectRepository;
 
-  function __construct(CategoryTransformer $categoryTransformer, CategoryRepository $categoryRepository, UserRepository $userRepository)
+  function __construct(CategoryRepository $categoryRepository, CategoryTransformer $categoryTransformer, ProjectRepository $projectRepository)
   {
-    $this->beforeFilter('jwt.auth');
+    $this->middleware('jwt.auth');
+    $this->middleware('expensy.project');
 
-    $this->categoryTransformer = $categoryTransformer;
     $this->categoryRepository = $categoryRepository;
-    $this->userRepository = $userRepository;
+    $this->categoryTransformer = $categoryTransformer;
+    $this->projectRepository = $projectRepository;
   }
 
   /**
    * Display a listing of the resource.
    *
-   * @param null $userId
+   * @param Request $request
+   * @param int     $projectId
    *
    * @return Response
    */
-  public function index($userId = null)
+  public function index(Request $request, int $projectId)
   {
-    if (!is_null($userId)) {
-      $user = $this->userRepository->find($userId);
+    $filters = Arrays::merge($request->all(), ['project_id' => $projectId]);
+    $categories = $this->categoryRepository->filter($filters);
 
-      if (!$user) {
-        return $this->respondNotFound('User does not exist.');
-      }
-    }
-
-    $filters = Arrays::merge(Input::all(), ['userId' => $userId]);
-    $categorys = $this->categoryRepository->filter($filters);
-
-    return $this->respondWithPagination($categorys, [
-        'data' => $this->categoryTransformer->transformCollection($categorys->all())
+    return $this->respondWithPagination($categories, [
+        'items' => $this->categoryTransformer->transformCollection($categories->items())
     ]);
   }
 
   /**
    * Store a newly created resource in storage.
    *
+   * @param Request $request
+   * @param int     $projectId
+   *
    * @return Response
    */
-  public function store()
+  public function store(Request $request, int $projectId)
   {
-    $inputs = Input::all();
-
-    $validation = $this->categoryRepository->isValidForCreation('Category', $inputs);
+    $inputs = $request->all();
+    $validation = $this->categoryRepository->isValidForCreation('App\Models\Category', $inputs);
 
     if (!$validation->passes) {
       return $this->respondFailedValidation($validation->messages);
     }
 
-    $inputs['user_id'] = Auth::user()->id;
     $createdCategory = $this->categoryRepository->create($inputs);
+    $project = $this->projectRepository->find($projectId);
+    $project->categories()->save($createdCategory);
 
-    $response = [
-        'data' => $this->categoryTransformer->fullTransform($createdCategory)
-    ];
-
-    return $this->respondCreated($response);
+    return $this->respondCreated($this->categoryTransformer->fullTransform($createdCategory));
   }
 
 
   /**
    * Display the specified resource.
    *
-   * @param  int $id
+   * @param Request $request
+   * @param         $projectId
+   * @param         $categoryId
    *
    * @return Response
+   * @internal param int $id
+   *
    */
-  public function show($id)
+  public function show(Request $request, $projectId, $categoryId)
   {
-    $category = $this->categoryRepository->find($id);
+    $category = $this->categoryRepository->find($categoryId);
 
     if (!$category) {
       return $this->respondNotFound('Category does not exist.');
     }
 
-    return $this->respond([
-        'data' => $this->categoryTransformer->fullTransform($category)
-    ]);
+    return $this->respond($this->categoryTransformer->fullTransform($category));
   }
 
 
   /**
    * Update the specified resource in storage.
    *
-   * @param  int $id
+   * @param Request $request
+   * @param         $projectId
+   * @param         $categoryId
    *
    * @return Response
+   * @internal param int $id
+   *
    */
-  public function update($id)
+  public function update(Request $request, $projectId, $categoryId)
   {
-    $category = $this->categoryRepository->find($id);
-    $inputs = Input::all();
-    $inputs['id'] = $id;
+    $category = $this->categoryRepository->find($categoryId);
+    $inputs = $request->all();
 
     if (!$category) {
       return $this->respondNotFound('Category does not exist.');
     }
 
-    if (!$this->canConnectedUserEditElement($category['user_id'])) {
-      return $this->respondForbidden();
-    }
-    $validation = $this->categoryRepository->isValidForUpdate('Category', $inputs);
+    $validation = $this->categoryRepository->isValidForUpdate('App\Models\Category', $inputs);
 
     if (!$validation->passes) {
       return $this->respondFailedValidation($validation->messages);
     }
 
-    $inputs['user_id'] = Auth::user()->id;
-    $updatedCategory = $this->categoryRepository->update($id, $inputs);
+    $updatedCategory = $this->categoryRepository->update($categoryId, $inputs);
 
-    $response = [
-        'data' => $this->categoryTransformer->fullTransform($updatedCategory)
-    ];
-
-    return $this->respond($response);
+    return $this->respond($this->categoryTransformer->fullTransform($updatedCategory));
   }
 
 
   /**
    * Remove the specified resource from storage.
    *
-   * @param  int $id
+   * @param Request $request
+   * @param         $projectId
+   * @param         $categoryId
    *
    * @return Response
+   * @internal param int $id
+   *
    */
-  public function destroy($id)
+  public function destroy(Request $request, $projectId, $categoryId)
   {
-    $category = $this->categoryRepository->find($id);
+    $category = $this->categoryRepository->find($categoryId);
 
     if (!$category) {
       return $this->respondNotFound('Category does not exist.');
     }
 
-    if (!$this->canConnectedUserEditElement($category['user_id'])) {
-      return $this->respondForbidden();
-    }
-
-    $this->categoryRepository->delete($id);
+    $this->categoryRepository->delete($categoryId);
 
     return $this->respondNoContent();
   }

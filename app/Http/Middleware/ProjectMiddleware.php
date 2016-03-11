@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Project;
 use Closure;
 
-class ProjectMiddleware extends BaseM
+class ProjectMiddleware
 {
   /**
    * Handle an incoming request.
@@ -17,16 +17,14 @@ class ProjectMiddleware extends BaseM
    */
   public function handle($request, Closure $next)
   {
-    dd($request->id);
-    if($request->id || $request->projects) {
+    if (!is_null($request->id) || !is_null($request->projects)) {
       $projectId = $request->id ?: $request->projects;
       $project = Project::find($projectId);
 
-      dd($project->isAccessibleByConnectedUser());
       if (!$project) {
-        return $this->respond('project.not_found', 'Project does not exist', 404);
+        return response()->json('Project does not exist', 404);
       } else if (!$project->isAccessibleByConnectedUser()) {
-        return $this->respond('project.forbidden', 'Forbidden', 403);
+        return response()->json('Forbidden', 403);
       }
     }
 

@@ -1,14 +1,13 @@
 <?php
 
+namespace App\Models;
 
-use App\Models\ApiModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends ApiModel
 {
   use SoftDeletes;
 
-  protected $dates = ['deleted_at'];
   /**
    * The database table used by the model.
    *
@@ -16,20 +15,18 @@ class Category extends ApiModel
    */
   protected $table = 'categories';
 
-  protected $fillable = ['title', 'color', 'user_id'];
-
-  protected $notifiable = ['title', 'color'];
+  protected $fillable = ['title', 'color'];
 
   protected $commonRules = [
-      'title' => 'required',
+      'title' => ['required'],
       'color' => ['required']
   ];
 
   protected $rulesForCreation = [];
   protected $rulesForUpdate = [];
 
-  public function user()
+  public function project()
   {
-    return $this->belongsTo('User');
+    return $this->belongsTo('App\Models\Project');
   }
 }

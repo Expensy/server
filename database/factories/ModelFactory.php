@@ -26,3 +26,19 @@ $factory->define(App\Models\Project::class, function (Faker\Generator $faker) {
   ];
 });
 
+$factory->define(App\Models\Category::class, function (Faker\Generator $faker) {
+  return [
+      'title' => $faker->name,
+      'color' => $faker->hexcolor
+  ];
+});
+
+$factory->define(App\Models\Entry::class, function (Faker\Generator $faker) {
+  return [
+      'title'   => $faker->name,
+      'price'   => $faker->numberBetween($min = 100, $max = 100000),
+      'date'    => $faker->dateTime(),
+      'content' => $faker->sentence()
+  ];
+});
+

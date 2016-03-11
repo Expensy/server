@@ -9,8 +9,6 @@ class Project extends ApiModel
 {
   use SoftDeletes;
 
-  protected $dates = ['deleted_at'];
-
   /**
    * The database table used by the model.
    *
@@ -35,6 +33,11 @@ class Project extends ApiModel
   public function categories()
   {
     return $this->hasMany('App\Models\Category');
+  }
+
+  public function entries()
+  {
+    return $this->hasMany('App\Models\Entry');
   }
 
   public function isAccessibleByConnectedUser()
