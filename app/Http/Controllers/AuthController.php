@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests;
-use App\Models\Enum\AuthEnum;
 use App\Repositories\AuthRepository;
 use Illuminate\Http\Request;
 
