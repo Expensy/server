@@ -50,10 +50,16 @@ class ApiModel extends Model
         $rules = $this->getRulesForCreation();
         break;
       case Action::UPDATE :
-        $rules = $this->getRulesForUpdate();
+        $allRules = $this->getRulesForUpdate();
 
-        $rules = Arrays::invoke($rules, function ($rule) use ($data) {
-          return str_replace('{id}', $data['id'], $rule);
+        $rules = Arrays::invoke($allRules, function ($rules) use ($data) {
+          return Arrays::invoke($rules, function ($rule) use ($data) {
+            if (strpos($rule, '{id}') !== false) {
+              return str_replace('{id}', $data['id'], $rule);
+            }
+
+            return $rule;
+          });
         });
         break;
     }

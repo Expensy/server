@@ -78,7 +78,7 @@ class ProjectsController extends ApiController
     if (!$project) {
       return $this->respondNotFound('Project does not exist.');
     }
-    if (!$this->_canConnectedUserEditElement($project)) {
+    if (!$project->isAccessibleByConnectedUser()) {
       return $this->respondForbidden();
     }
 
@@ -103,7 +103,7 @@ class ProjectsController extends ApiController
     if (!$project) {
       return $this->respondNotFound('Project does not exist.');
     }
-    if (!$this->_canConnectedUserEditElement($project)) {
+    if (!$project->isAccessibleByConnectedUser()) {
       return $this->respondForbidden();
     }
 
@@ -135,7 +135,7 @@ class ProjectsController extends ApiController
       return $this->respondNotFound('Project does not exist.');
     }
 
-    if (!$this->_canConnectedUserEditElement($project)) {
+    if (!$project->isAccessibleByConnectedUser()) {
       return $this->respondForbidden();
     }
 
@@ -157,7 +157,7 @@ class ProjectsController extends ApiController
       return $this->respondNotFound('User does not exist.');
     }
 
-    if (!$this->_canConnectedUserEditElement($project)) {
+    if (!$project->isAccessibleByConnectedUser()) {
       return $this->respondForbidden();
     }
 
@@ -179,7 +179,7 @@ class ProjectsController extends ApiController
       return $this->respondNotFound('User does not exist.');
     }
 
-    if (!$this->_canConnectedUserEditElement($project)) {
+    if (!$project->isAccessibleByConnectedUser()) {
       return $this->respondForbidden();
     }
 

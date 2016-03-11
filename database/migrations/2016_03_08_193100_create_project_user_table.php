@@ -16,7 +16,10 @@ class CreateProjectUserTable extends Migration
       $table->increments('id');
 
       $table->integer('project_id', false, true)->index();
+      $table->foreign('project_id')->references('id')->on('projects');
+
       $table->integer('user_id', false, true)->index();
+      $table->foreign('user_id')->references('id')->on('users');
     });
   }
 

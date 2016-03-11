@@ -1,11 +1,11 @@
 <?php
 
+
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class AuthControllerTest extends TestCase
 {
-  use DatabaseMigrations, DatabaseTransactions;
+  use DatabaseMigrations;
 
   protected $credentials;
 

@@ -7,7 +7,7 @@ use Underscore\Types\Arrays;
 
 class UsersControllerTest extends ApiTester
 {
-  protected $url = 'api/v1/users/%';
+  protected $url = 'api/v1/users/%d';
 
   use DatabaseMigrations, DatabaseTransactions;
 
@@ -21,7 +21,6 @@ class UsersControllerTest extends ApiTester
   {
     factory(App\Models\User::class, 3)->create();
 
-    dd($this->createUrl($this->url));
     $call = $this->getJson($this->createUrl($this->url));
 
     $this->assertResponseOk();
@@ -105,6 +104,7 @@ class UsersControllerTest extends ApiTester
     $this->assertResponseStatus(404);
   }
 
+
   /** @test */
   public function it_creates_a_new_user()
   {
@@ -129,31 +129,7 @@ class UsersControllerTest extends ApiTester
     $this->assertResponseStatus(400);
   }
 
-  /** @test */
-  public function it_creates_a_new_user_400_if_not_authenticated()
-  {
-    $user = factory(App\Models\User::class)->make();
-    $data = Arrays::merge($user->toArray(), ['password' => 'password']);
 
-    $this
-        ->setAuthentication(AuthEnum::NONE)
-        ->postJson($this->createUrl($this->url), $data);
-
-    $this->assertResponseStatus(400);
-  }
-
-  /** @test */
-  public function it_creates_a_new_user_400_if_wrong_authentication()
-  {
-    $user = factory(App\Models\User::class)->make();
-    $data = Arrays::merge($user->toArray(), ['password' => 'password']);
-
-    $this
-        ->setAuthentication(AuthEnum::WRONG)
-        ->postJson($this->createUrl($this->url), $data);
-
-    $this->assertResponseStatus(400);
-  }
 
   /** @test */
   public function it_updates_the_connected_user()

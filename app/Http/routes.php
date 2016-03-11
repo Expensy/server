@@ -38,6 +38,7 @@ Route::group(['prefix' => 'api'], function () {
     Route::resource('projects', 'ProjectsController');
     Route::put('projects/{id}/members/{userId}', 'ProjectsController@addMember');
     Route::delete('projects/{id}/members/{userId}', 'ProjectsController@removeMember');
+    Route::resource('projects.categories', 'CategoriesController');
   });
 });
 
