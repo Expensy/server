@@ -17,7 +17,7 @@ class CreateCategoriesTable extends Migration
       $table->string('title');
       $table->string('color', 7);
       $table->integer('project_id')->unsigned();
-      //$table->foreign('project_id')->references('id')->on('projects');
+      $table->foreign('project_id')->references('id')->on('projects');
 
       $table->timestamps();
       $table->softDeletes();

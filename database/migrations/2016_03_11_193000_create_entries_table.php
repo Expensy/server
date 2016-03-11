@@ -19,7 +19,9 @@ class CreateEntriesTable extends Migration
       $table->timestamp('date');
       $table->text('content');
       $table->integer('project_id')->unsigned();
+      $table->foreign('project_id')->references('id')->on('projects');
       $table->integer('category_id')->unsigned();
+      $table->foreign('category_id')->references('id')->on('categories');
 
       $table->timestamps();
       $table->softDeletes();

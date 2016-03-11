@@ -57,6 +57,7 @@ class EntriesController extends ApiController
   public function store(Request $request, int $projectId)
   {
     $inputs = $request->all();
+    $inputs['project_id'] = $projectId;
 
     $validation = $this->entryRepository->isValidForCreation('App\Models\Entry', $inputs);
 
@@ -65,10 +66,6 @@ class EntriesController extends ApiController
     }
 
     $createdEntry = $this->entryRepository->create($inputs);
-    $project = $this->projectRepository->find($projectId);
-    $project->categories()->save($createdEntry);
-    $category = $this->categoryRepository->find($inputs['category_id']);
-    $category->entries()->save($createdEntry);
 
     return $this->respondCreated($this->entryTransformer->fullTransform($createdEntry));
   }
@@ -112,6 +109,7 @@ class EntriesController extends ApiController
   {
     $entry = $this->entryRepository->find($entryId);
     $inputs = $request->all();
+    $inputs['project_id'] = $projectId;
 
     if (!$entry) {
       return $this->respondNotFound('Entry does not exist.');
@@ -123,11 +121,6 @@ class EntriesController extends ApiController
     }
 
     $updatedEntry = $this->entryRepository->update($entryId, $inputs);
-
-    $category = $this->categoryRepository->find($inputs['category_id']);
-    if ($inputs['category_id'] !== $entry->categoryId) {
-      $category->entries()->save($updatedEntry);
-    }
 
     return $this->respond($this->entryTransformer->fullTransform($updatedEntry));
   }

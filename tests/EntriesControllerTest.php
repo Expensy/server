@@ -21,13 +21,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
-
-    $entries = factory(App\Models\Entry::class, 3)->create([
-        'category_id' => $category->id
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
     ]);
-    $project->entries()->saveMany($entries);
+
+    factory(App\Models\Entry::class, 3)->create([
+        'category_id' => $category->id,
+        'project_id'  => $project->id
+    ]);
 
     $call = $this->getJson($this->createUrl($this->url, $project->id));
 
@@ -48,13 +49,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
-
-    $entries = factory(App\Models\Entry::class, 3)->create([
-        'category_id' => $category->id
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
     ]);
-    $project->entries()->saveMany($entries);
+
+    factory(App\Models\Entry::class, 3)->create([
+        'category_id' => $category->id,
+        'project_id'  => $project->id
+    ]);
 
     $this
         ->setAuthentication(AuthEnum::NONE)
@@ -69,13 +71,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
-
-    $entries = factory(App\Models\Entry::class, 3)->create([
-        'category_id' => $category->id
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
     ]);
-    $project->entries()->saveMany($entries);
+
+    factory(App\Models\Entry::class, 3)->create([
+        'category_id' => $category->id,
+        'project_id'  => $project->id
+    ]);
 
     $this
         ->setAuthentication(AuthEnum::WRONG)
@@ -90,13 +93,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
-
-    $entries = factory(App\Models\Entry::class, 3)->create([
-        'category_id' => $category->id
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
     ]);
-    $project->entries()->saveMany($entries);
+
+    factory(App\Models\Entry::class, 3)->create([
+        'category_id' => $category->id,
+        'project_id'  => $project->id
+    ]);
 
     $this
         ->setAuthentication(AuthEnum::WRONG)
@@ -112,13 +116,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $call = $this->getJson($this->createUrl($this->url, $project->id, $entry->id));
     $this->assertResponseOk();
@@ -137,13 +142,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this
         ->setAuthentication(AuthEnum::NONE)
@@ -158,13 +164,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this
         ->setAuthentication(AuthEnum::WRONG)
@@ -180,13 +187,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($user->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this->getJson($this->createUrl($this->url, $project->id, $entry->id));
 
@@ -217,8 +225,9 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->make([
         'category_id' => $category->id
@@ -263,8 +272,9 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->make([
         'category_id' => $category->id
@@ -284,8 +294,9 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->make([
         'category_id' => $category->id
@@ -306,8 +317,9 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($user->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->make([
         'category_id' => $category->id
@@ -325,8 +337,9 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->make([
         'category_id' => $category->id
@@ -345,13 +358,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $call = $this->putJson($this->createUrl($this->url, $project->id, $entry->id), [
         'id'          => $entry->id,
@@ -372,13 +386,15 @@ class EntriesControllerTest extends ApiTester
   {
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this->putJson($this->createUrl($this->url, $project->id, $entry->id), []);
 
@@ -390,13 +406,15 @@ class EntriesControllerTest extends ApiTester
   {
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => 0
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this->putJson($this->createUrl($this->url, $project->id, $entry->id), [
         'id'          => $entry->id,
@@ -415,13 +433,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this
         ->setAuthentication(AuthEnum::NONE)
@@ -439,13 +458,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this
         ->setAuthentication(AuthEnum::WRONG)
@@ -464,13 +484,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($user->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this->putJson($this->createUrl($this->url, $project->id, $entry->id), [
         'id'    => $entry->id,
@@ -486,13 +507,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this->putJson($this->createUrl($this->url, 0, $entry->id), [
         'id'    => 0,
@@ -523,13 +545,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this->deleteJson($this->createUrl($this->url, $project->id, $entry->id));
 
@@ -542,13 +565,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this
         ->setAuthentication(AuthEnum::NONE)
@@ -564,13 +588,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this
         ->setAuthentication(AuthEnum::WRONG)
@@ -586,13 +611,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($user->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this->deleteJson($this->createUrl($this->url, $project->id, $entry->id));
 
@@ -605,13 +631,14 @@ class EntriesControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->create();
-    $project->categories()->save($category);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
 
     $entry = factory(App\Models\Entry::class)->create([
-        'category_id' => $category->id
+        'category_id' => $category->id,
+        'project_id'  => $project->id
     ]);
-    $project->entries()->save($entry);
 
     $this->deleteJson($this->createUrl($this->url, 0, $entry->id));
 

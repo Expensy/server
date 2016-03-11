@@ -17,12 +17,13 @@ class Entry extends ApiModel
    */
   protected $table = 'entries';
 
-  protected $fillable = ['title', 'price', 'date', 'content'];
+  protected $fillable = ['title', 'price', 'date', 'content', 'project_id', 'category_id'];
 
   protected $commonRules = [
       'title'       => ['required'],
       'price'       => ['required', 'integer', 'min:0'],
       'date'        => ['required', 'date'],
+      'project_id'  => ['required', 'exists:projects,id'],
       'category_id' => ['required', 'exists:categories,id']
   ];
 

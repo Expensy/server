@@ -15,11 +15,12 @@ class Category extends ApiModel
    */
   protected $table = 'categories';
 
-  protected $fillable = ['title', 'color'];
+  protected $fillable = ['title', 'color', 'project_id'];
 
   protected $commonRules = [
-      'title' => ['required'],
-      'color' => ['required']
+      'title'      => ['required'],
+      'color'      => ['required'],
+      'project_id' => ['required', 'exists:projects,id'],
   ];
 
   protected $rulesForCreation = [];

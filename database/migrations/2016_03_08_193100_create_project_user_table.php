@@ -15,10 +15,10 @@ class CreateProjectUserTable extends Migration
     Schema::create('project_user', function (Blueprint $table) {
       $table->increments('id');
 
-      $table->integer('project_id', false, true)->index();
+      $table->integer('project_id', false, true);
       $table->foreign('project_id')->references('id')->on('projects');
 
-      $table->integer('user_id', false, true)->index();
+      $table->integer('user_id', false, true);
       $table->foreign('user_id')->references('id')->on('users');
     });
   }

@@ -54,6 +54,8 @@ class CategoriesController extends ApiController
   public function store(Request $request, int $projectId)
   {
     $inputs = $request->all();
+    $inputs['project_id'] = $projectId;
+
     $validation = $this->categoryRepository->isValidForCreation('App\Models\Category', $inputs);
 
     if (!$validation->passes) {
@@ -61,8 +63,6 @@ class CategoriesController extends ApiController
     }
 
     $createdCategory = $this->categoryRepository->create($inputs);
-    $project = $this->projectRepository->find($projectId);
-    $project->categories()->save($createdCategory);
 
     return $this->respondCreated($this->categoryTransformer->fullTransform($createdCategory));
   }
@@ -106,6 +106,7 @@ class CategoriesController extends ApiController
   {
     $category = $this->categoryRepository->find($categoryId);
     $inputs = $request->all();
+    $inputs['project_id'] = $projectId;
 
     if (!$category) {
       return $this->respondNotFound('Category does not exist.');
