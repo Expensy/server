@@ -74,6 +74,20 @@ class UsersControllerTest extends ApiTester
   }
 
   /** @test */
+  public function it_fetches_the_connected_user()
+  {
+    $call = $this->getJson($this->createUrl($this->url, "current"));
+
+    $user = Auth::user();
+    $this->assertResponseOk();
+    $call->seeJsonEquals([
+        'id'    => $user->id,
+        'name'  => $user->name,
+        'email' => $user->email
+    ]);
+  }
+
+  /** @test */
   public function it_fetches_a_single_user_400_if_not_authenticated()
   {
     $user = factory(App\Models\User::class, 1)->create();
@@ -130,7 +144,6 @@ class UsersControllerTest extends ApiTester
   }
 
 
-
   /** @test */
   public function it_updates_the_connected_user()
   {
@@ -153,9 +166,11 @@ class UsersControllerTest extends ApiTester
   {
     $connectedUser = $this->createConnectedUser();
 
-    $this->putJson($this->createUrl($this->url, $connectedUser->id), [
-        'email' => "wrongemail"
-    ]);
+    $this
+        ->setAuthentication(AuthEnum::WRONG)
+        ->putJson($this->createUrl($this->url, $connectedUser->id), [
+            'email' => "wrongemail"
+        ]);
 
     $this->assertResponseStatus(400);
   }

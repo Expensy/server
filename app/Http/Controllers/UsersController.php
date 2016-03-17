@@ -6,6 +6,7 @@ use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use App\Transformers\UserTransformer;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UsersController extends ApiController
 {
@@ -70,7 +71,11 @@ class UsersController extends ApiController
    */
   public function show(Request $request, $id)
   {
-    $user = $this->userRepository->find($id);
+    if ($id === "current") {
+      $user = JWTAuth::parseToken()->toUser();
+    } else {
+      $user = $this->userRepository->find($id);
+    }
 
     if (!$user) {
       return $this->respondNotFound('User does not exist.');

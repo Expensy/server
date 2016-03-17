@@ -42,16 +42,17 @@ class User extends ApiModel implements
   ];
 
   protected $commonRules = [
-      'email'    => ['email', 'unique:users,email,{id}'],
+      'email'    => ['email'],
       'password' => ['confirmed']
   ];
 
   protected $rulesForCreation = [
-      'email'    => ['required'],
+      'email'    => ['required', 'unique:users,email'],
       'password' => ['required']
   ];
 
   protected $rulesForUpdate = [
+      'email'        => ['unique:users,email,{id}'],
       'password_old' => ['old_password', 'required_with:password']
   ];
 
