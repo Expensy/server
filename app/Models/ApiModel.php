@@ -7,6 +7,7 @@ namespace App\Models;
 use BadMethodCallException;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Enum\Action;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Underscore\Types\Arrays;
 
@@ -67,7 +68,7 @@ class ApiModel extends Model
     $validator = Validator::make($data, $rules);
 
     if ($validator->fails()) {
-      $this->errors = $validator->messages()->toArray();
+      $this->errors = $validator->failed();
 
       return false;
     }
@@ -83,14 +84,11 @@ class ApiModel extends Model
    */
   public function getRulesForCreation()
   {
-    if (is_null($this->commonRules)) {
-      throw new BadMethodCallException('Add your `$commonRules` array');
-    }
     if (is_null($this->rulesForCreation)) {
       throw new BadMethodCallException('Add your `$rulesForCreation` array');
     }
 
-    return Arrays::merge($this->commonRules, $this->rulesForCreation);
+    return $this->rulesForCreation;
   }
 
   /**
@@ -101,14 +99,12 @@ class ApiModel extends Model
    */
   public function getRulesForUpdate()
   {
-    if (is_null($this->commonRules)) {
-      throw new BadMethodCallException('Add your `$commonRules` array');
-    }
+
     if (is_null($this->rulesForUpdate)) {
       throw new BadMethodCallException('Add your `$rulesForUpdate` array');
     }
 
-    return Arrays::merge($this->commonRules, $this->rulesForUpdate);
+    return $this->rulesForUpdate;
   }
 
   /**

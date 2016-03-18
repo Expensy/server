@@ -17,14 +17,17 @@ class Category extends ApiModel
 
   protected $fillable = ['title', 'color', 'project_id'];
 
-  protected $commonRules = [
+  protected $rulesForCreation = [
       'title'      => ['required'],
       'color'      => ['required'],
       'project_id' => ['required', 'exists:projects,id'],
   ];
 
-  protected $rulesForCreation = [];
-  protected $rulesForUpdate = [];
+  protected $rulesForUpdate = [
+      'title'      => ['required'],
+      'color'      => ['required'],
+      'project_id' => ['required', 'exists:projects,id'],
+  ];
 
   public function project()
   {

@@ -18,8 +18,8 @@ class Entry extends ApiModel
   protected $table = 'entries';
 
   protected $fillable = ['title', 'price', 'date', 'content', 'project_id', 'category_id'];
-
-  protected $commonRules = [
+  
+  protected $rulesForCreation = [
       'title'       => ['required'],
       'price'       => ['required', 'integer', 'min:0'],
       'date'        => ['required', 'date'],
@@ -27,8 +27,13 @@ class Entry extends ApiModel
       'category_id' => ['required', 'exists:categories,id']
   ];
 
-  protected $rulesForCreation = [];
-  protected $rulesForUpdate = [];
+  protected $rulesForUpdate = [
+      'title'       => ['required'],
+      'price'       => ['required', 'integer', 'min:0'],
+      'date'        => ['required', 'date'],
+      'project_id'  => ['required', 'exists:projects,id'],
+      'category_id' => ['required', 'exists:categories,id']
+  ];
 
   public function project()
   {

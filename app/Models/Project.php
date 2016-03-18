@@ -17,13 +17,13 @@ class Project extends ApiModel
   protected $table = 'projects';
 
   protected $fillable = ['title'];
-
-  protected $commonRules = [
+  
+  protected $rulesForCreation = [
       'title' => ['required']
   ];
-
-  protected $rulesForCreation = [];
-  protected $rulesForUpdate = [];
+  protected $rulesForUpdate = [
+      'title' => ['required']
+  ];
 
   public function users()
   {

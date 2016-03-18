@@ -41,18 +41,15 @@ class User extends ApiModel implements
       'password', 'remember_token',
   ];
 
-  protected $commonRules = [
-      'email'    => ['email'],
-      'password' => ['confirmed']
-  ];
-
   protected $rulesForCreation = [
-      'email'    => ['required', 'unique:users,email'],
-      'password' => ['required']
+      'name'     => ['required'],
+      'email'    => ['required', 'email', 'unique:users,email'],
+      'password' => ['required', 'confirmed']
   ];
 
   protected $rulesForUpdate = [
-      'email'        => ['unique:users,email,{id}'],
+      'name'         => ['required'],
+      'email'        => ['required', 'email', 'unique:users,email,{id}'],
       'password_old' => ['old_password', 'required_with:password']
   ];
 

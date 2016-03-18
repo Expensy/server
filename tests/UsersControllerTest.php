@@ -123,7 +123,10 @@ class UsersControllerTest extends ApiTester
   public function it_creates_a_new_user()
   {
     $user = factory(App\Models\User::class)->make();
-    $data = Arrays::merge($user->toArray(), ['password' => 'password']);
+    $data = Arrays::merge($user->toArray(), [
+        'password'              => 'password',
+        'password_confirmation' => 'password'
+    ]);
 
     $call = $this->postJson($this->createUrl($this->url), $data);
 
@@ -149,9 +152,10 @@ class UsersControllerTest extends ApiTester
   {
     $connectedUser = $this->createConnectedUser();
 
-    $call = $this->putJson($this->createUrl($this->url, $connectedUser->id), [
+
+    $call = $this->putJson($this->createUrl($this->url, $connectedUser->id), Arrays::merge($connectedUser->toArray(), [
         'name' => "New Name"
-    ]);
+    ]));
 
     $this->assertResponseStatus(200);
     $call->seeJson([
