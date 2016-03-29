@@ -17,7 +17,7 @@ class Project extends ApiModel
   protected $table = 'projects';
 
   protected $fillable = ['title'];
-  
+
   protected $rulesForCreation = [
       'title' => ['required']
   ];
@@ -27,17 +27,17 @@ class Project extends ApiModel
 
   public function users()
   {
-    return $this->belongsToMany('App\Models\User');
+    return $this->belongsToMany('App\Models\User')->orderBy('name', 'asc');
   }
 
   public function categories()
   {
-    return $this->hasMany('App\Models\Category');
+    return $this->hasMany('App\Models\Category')->orderBy('title', 'asc');
   }
 
   public function entries()
   {
-    return $this->hasMany('App\Models\Entry');
+    return $this->hasMany('App\Models\Entry')->orderBy('date', 'desc');
   }
 
   public function isAccessibleByConnectedUser()

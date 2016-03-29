@@ -55,6 +55,6 @@ class User extends ApiModel implements
 
   public function projects()
   {
-    return $this->belongsToMany('App\Models\Project');
+    return $this->belongsToMany('App\Models\Project')->orderBy('title', 'asc');
   }
 }

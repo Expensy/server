@@ -36,6 +36,6 @@ class Category extends ApiModel
 
   public function entries()
   {
-    return $this->hasMany('App\Models\Entry');
+    return $this->hasMany('App\Models\Entry')->orderBy('date', 'desc');
   }
 }
