@@ -7,10 +7,12 @@ use Underscore\Types\Arrays;
 class ProjectTransformer extends Transformer
 {
   public $userTransformer;
+  private $categoryTransformer;
 
-  function __construct(UserTransformer $userTransformer)
+  function __construct(UserTransformer $userTransformer, CategoryTransformer $categoryTransformer)
   {
     $this->userTransformer = $userTransformer;
+    $this->categoryTransformer = $categoryTransformer;
   }
 
   public function basicTransform($item)
@@ -27,6 +29,7 @@ class ProjectTransformer extends Transformer
         $this->basicTransform($item),
         [
             'members'    => $this->_getUsers($item),
+            'categories' => $this->_getCategories($item),
             'created_at' => $item['created_at']->toIso8601String(),
             'updated_at' => $item['updated_at']->toIso8601String()
         ]);
@@ -43,6 +46,13 @@ class ProjectTransformer extends Transformer
   {
     return Arrays::each($item->users->all(), function ($user) {
       return $this->userTransformer->basicTransform($user);
+    });
+  }
+
+  private function _getCategories($item)
+  {
+    return Arrays::each($item->categories->all(), function ($category) {
+      return $this->categoryTransformer->extendedTransform($category);
     });
   }
 }
