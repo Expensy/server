@@ -67,9 +67,10 @@ class UsersControllerTest extends ApiTester
 
     $this->assertResponseOk();
     $call->seeJsonEquals([
-        'id'    => $user->id,
-        'name'  => $user->name,
-        'email' => $user->email
+        'id'       => $user->id,
+        'name'     => $user->name,
+        'email'    => $user->email,
+        'projects' => []
     ]);
   }
 
@@ -81,9 +82,10 @@ class UsersControllerTest extends ApiTester
     $user = Auth::user();
     $this->assertResponseOk();
     $call->seeJsonEquals([
-        'id'    => $user->id,
-        'name'  => $user->name,
-        'email' => $user->email
+        'id'       => $user->id,
+        'name'     => $user->name,
+        'email'    => $user->email,
+        'projects' => []
     ]);
   }
 
