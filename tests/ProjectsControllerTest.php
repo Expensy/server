@@ -1,9 +1,9 @@
 <?php
 
+use App\Models\Project;
 use Helpers\AuthEnum;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Underscore\Types\Arrays;
 
 class ProjectsControllerTest extends ApiTester
 {
@@ -136,15 +136,37 @@ class ProjectsControllerTest extends ApiTester
     $project = factory(App\Models\Project::class)->make();
     $data = $project->toArray();
 
-    $this->postJson($this->createUrl($this->url), $data);
+    $call = $this->postJson($this->createUrl($this->url), $data);
+
+    $obj = json_decode($call->response->getContent());
+    $categories = Project::find($obj->id)->categories->all();
 
     $this->assertResponseStatus(201);
+
+    $this->assertEquals(1, count($categories));
+
+    $category = $categories[0];
+    $this->assertEquals("Category 1", $category->title);
+    $this->assertEquals("#419fdb", $category->color);
   }
 
   /** @test */
   public function it_creates_a_new_project_400_if_validation_fails()
   {
     $this->postJson($this->createUrl($this->url), []);
+
+    $this->assertResponseStatus(400);
+  }
+
+  /** @test */
+  public function it_creates_a_new_project_400_if_title_already_taken()
+  {
+    $project = factory(App\Models\Project::class)->create();
+    $project->users()->attach($this->connectedUser->id);
+
+    $this->postJson($this->createUrl($this->url), [
+        'title' => $project->title
+    ]);
 
     $this->assertResponseStatus(400);
   }
@@ -201,6 +223,25 @@ class ProjectsControllerTest extends ApiTester
     $project->users()->attach($this->connectedUser->id);
 
     $this->putJson($this->createUrl($this->url, $project->id), []);
+
+    $this->assertResponseStatus(400);
+  }
+
+  /** @test */
+  public function it_updates_the_project_400_if_title_already_taken()
+  {
+    $connectedUser = $this->connectedUser;
+
+    $projects = factory(App\Models\Project::class, 2)
+        ->create()
+        ->each(function ($p) use ($connectedUser) {
+          $p->users()->attach($connectedUser->id);
+        });
+
+    $this->putJson($this->createUrl($this->url, $projects[0]->id), [
+        'id'    => $projects[0]->id,
+        'title' => $projects[1]->title
+    ]);
 
     $this->assertResponseStatus(400);
   }
@@ -335,6 +376,21 @@ class ProjectsControllerTest extends ApiTester
 
     $this->assertResponseStatus(200);
   }
+
+  /** @test */
+  public function it_adds_member_400_if_already_added()
+  {
+    $project = factory(App\Models\Project::class)->create();
+    $project->users()->attach($this->connectedUser->id);
+
+    $user = factory(App\Models\User::class)->create();
+    $project->users()->attach($user->id);
+
+    $this->putJson($this->createUrl($this->membersUrl, $project->id, $user->id));
+
+    $this->assertResponseStatus(400);
+  }
+
 
   /** @test */
   public function it_adds_member_400_if_not_authenticated()

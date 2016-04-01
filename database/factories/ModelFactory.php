@@ -28,8 +28,9 @@ $factory->define(App\Models\Project::class, function (Faker\Generator $faker) {
 
 $factory->define(App\Models\Category::class, function (Faker\Generator $faker) {
   return [
-      'title' => $faker->name,
-      'color' => $faker->hexcolor
+      'title'      => $faker->name,
+      'color'      => $faker->hexcolor,
+      'by_default' => $faker->boolean()
   ];
 });
 

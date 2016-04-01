@@ -110,6 +110,7 @@ class EntriesController extends ApiController
     $entry = $this->entryRepository->find($entryId);
     $inputs = $request->all();
     $inputs['project_id'] = $projectId;
+    $inputs['id'] = $entryId;
 
     if (!$entry) {
       return $this->respondNotFound('Entry does not exist.');

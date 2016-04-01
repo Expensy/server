@@ -22,6 +22,7 @@ class CategoryTransformer extends Transformer
         $this->basicTransform($item),
         [
             'color'      => $item['color'],
+            'by_default' => (bool)$item['by_default'],
             'created_at' => $item['created_at']->toIso8601String(),
             'updated_at' => $item['updated_at']->toIso8601String()
         ]);

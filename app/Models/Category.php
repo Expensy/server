@@ -15,17 +15,19 @@ class Category extends ApiModel
    */
   protected $table = 'categories';
 
-  protected $fillable = ['title', 'color', 'project_id'];
+  protected $fillable = ['title', 'color', 'by_default', 'project_id'];
 
   protected $rulesForCreation = [
-      'title'      => ['required'],
-      'color'      => ['required'],
+      'title'      => ['required', 'unique:categories,title,NULL,id,project_id,{project_id}'],
+      'color'      => ['required', 'hex_color'],
+      'by_default' => ['boolean', 'one_default_category:{project_id}'],
       'project_id' => ['required', 'exists:projects,id'],
   ];
 
   protected $rulesForUpdate = [
-      'title'      => ['required'],
-      'color'      => ['required'],
+      'title'      => ['required', 'unique:categories,title,NULL,id,project_id,{project_id}'],
+      'color'      => ['required', 'hex_color'],
+      'by_default' => ['boolean', 'one_default_category:{project_id},{id}'],
       'project_id' => ['required', 'exists:projects,id'],
   ];
 

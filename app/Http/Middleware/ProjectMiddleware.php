@@ -18,7 +18,7 @@ class ProjectMiddleware
   public function handle($request, Closure $next)
   {
     if (!is_null($request->id) || !is_null($request->projects)) {
-      $projectId = $request->id ?: $request->projects;
+      $projectId = $request->projects ?: $request->id;
       $project = Project::find($projectId);
 
       if (!$project) {

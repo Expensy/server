@@ -107,6 +107,7 @@ class CategoriesController extends ApiController
     $category = $this->categoryRepository->find($categoryId);
     $inputs = $request->all();
     $inputs['project_id'] = $projectId;
+    $inputs['id'] = $categoryId;
 
     if (!$category) {
       return $this->respondNotFound('Category does not exist.');
@@ -137,14 +138,18 @@ class CategoriesController extends ApiController
    */
   public function destroy(Request $request, $projectId, $categoryId)
   {
-    $category = $this->categoryRepository->find($categoryId);
 
-    if (!$category) {
-      return $this->respondNotFound('Category does not exist.');
-    }
+    //TODO you have to make sure you have at least one category for a project
+    //TODO what to do with Entries relying on this category ??
 
-    $this->categoryRepository->delete($categoryId);
-
-    return $this->respondNoContent();
+//    $category = $this->categoryRepository->find($categoryId);
+//
+//    if (!$category) {
+//      return $this->respondNotFound('Category does not exist.');
+//    }
+//
+//    $this->categoryRepository->delete($categoryId);
+//
+//    return $this->respondNoContent();
   }
 }

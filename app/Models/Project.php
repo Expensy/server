@@ -19,10 +19,10 @@ class Project extends ApiModel
   protected $fillable = ['title'];
 
   protected $rulesForCreation = [
-      'title' => ['required']
+      'title' => ['required', 'unique_project_name']
   ];
   protected $rulesForUpdate = [
-      'title' => ['required']
+      'title' => ['required', 'unique_project_name']
   ];
 
   public function users()

@@ -186,6 +186,27 @@ class CategoriesControllerTest extends ApiTester
   }
 
   /** @test */
+  public function it_creates_a_new_category_v2()
+  {
+    $project1 = factory(App\Models\Project::class)->create();
+    $project1->users()->attach($this->connectedUser->id);
+    $category = factory(App\Models\Category::class)->create([
+        'project_id' => $project1->id
+    ]);
+
+    $project2 = factory(App\Models\Project::class)->create();
+    $project2->users()->attach($this->connectedUser->id);
+    $category = factory(App\Models\Category::class)->make([
+        'title' => $category->title
+    ]);
+
+    $data = $category->toArray();
+    $this->postJson($this->createUrl($this->url, $project2->id), $data);
+
+    $this->assertResponseStatus(201);
+  }
+
+  /** @test */
   public function it_creates_a_new_category_400_if_validation_fails()
   {
     $project = factory(App\Models\Project::class)->create();
@@ -195,6 +216,42 @@ class CategoriesControllerTest extends ApiTester
 
     $this->assertResponseStatus(400);
   }
+
+  /** @test */
+  public function it_creates_a_new_category_400_if_title_already_taken()
+  {
+    $project = factory(App\Models\Project::class)->create();
+    $project->users()->attach($this->connectedUser->id);
+    $category1 = factory(App\Models\Category::class)->create([
+        'project_id' => $project->id
+    ]);
+
+    $category2 = factory(App\Models\Category::class)->make([
+        'title' => $category1->title
+    ]);
+
+    $data = $category2->toArray();
+    $this->postJson($this->createUrl($this->url, $project->id), $data);
+
+    $this->assertResponseStatus(400);
+  }
+
+  /** @test */
+  public function it_creates_a_new_category_400_if_color_not_hexadecimal()
+  {
+    $project = factory(App\Models\Project::class)->create();
+    $project->users()->attach($this->connectedUser->id);
+
+    $category = factory(App\Models\Category::class)->make([
+        'color' => "123456"
+    ]);
+    $data = $category->toArray();
+
+    $this->postJson($this->createUrl($this->url, $project->id), $data);
+
+    $this->assertResponseStatus(400);
+  }
+
 
   /** @test */
   public function it_creates_a_new_category_400_if_not_authenticated()
@@ -383,90 +440,90 @@ class CategoriesControllerTest extends ApiTester
   }
 
 
-  /** @test */
-  public function it_deletes_a_category()
-  {
-    $project = factory(App\Models\Project::class)->create();
-    $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
-        'project_id' => $project->id
-    ]);
-
-    $this->deleteJson($this->createUrl($this->url, $project->id, $category->id));
-
-    $this->assertResponseStatus(204);
-  }
-
-  /** @test */
-  public function it_deletes_the_category_400_if_not_authenticated()
-  {
-    $project = factory(App\Models\Project::class)->create();
-    $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
-        'project_id' => $project->id
-    ]);
-
-    $this
-        ->setAuthentication(AuthEnum::NONE)
-        ->deleteJson($this->createUrl($this->url, $project->id, $category->id));
-
-
-    $this->assertResponseStatus(400);
-  }
-
-  /** @test */
-  public function it_deletes_the_category_400_if_wrong_authentication()
-  {
-    $project = factory(App\Models\Project::class)->create();
-    $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
-        'project_id' => $project->id
-    ]);
-
-    $this
-        ->setAuthentication(AuthEnum::WRONG)
-        ->deleteJson($this->createUrl($this->url, $project->id, $category->id));
-
-    $this->assertResponseStatus(400);
-  }
-
-  /** @test */
-  public function it_deletes_a_category_403_if_forbidden()
-  {
-    $user = factory(App\Models\User::class)->create();
-    $project = factory(App\Models\Project::class)->create();
-    $project->users()->attach($user->id);
-    $category = factory(App\Models\Category::class)->create([
-        'project_id' => $project->id
-    ]);
-
-    $this->deleteJson($this->createUrl($this->url, $project->id, $category->id));
-
-    $this->assertResponseStatus(403);
-  }
-
-  /** @test */
-  public function it_deletes_a_category_404_if_project_not_found()
-  {
-    $project = factory(App\Models\Project::class)->create();
-    $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
-        'project_id' => $project->id
-    ]);
-
-    $this->deleteJson($this->createUrl($this->url, 0, $category->id));
-
-    $this->assertResponseStatus(404);
-  }
-
-  /** @test */
-  public function it_deletes_a_category_404_if_category_not_found()
-  {
-    $project = factory(App\Models\Project::class)->create();
-    $project->users()->attach($this->connectedUser->id);
-
-    $this->deleteJson($this->createUrl($this->url, $project->id, 0));
-
-    $this->assertResponseStatus(404);
-  }
+//  /** @test */
+//  public function it_deletes_a_category()
+//  {
+//    $project = factory(App\Models\Project::class)->create();
+//    $project->users()->attach($this->connectedUser->id);
+//    $category = factory(App\Models\Category::class)->create([
+//        'project_id' => $project->id
+//    ]);
+//
+//    $this->deleteJson($this->createUrl($this->url, $project->id, $category->id));
+//
+//    $this->assertResponseStatus(204);
+//  }
+//
+//  /** @test */
+//  public function it_deletes_the_category_400_if_not_authenticated()
+//  {
+//    $project = factory(App\Models\Project::class)->create();
+//    $project->users()->attach($this->connectedUser->id);
+//    $category = factory(App\Models\Category::class)->create([
+//        'project_id' => $project->id
+//    ]);
+//
+//    $this
+//        ->setAuthentication(AuthEnum::NONE)
+//        ->deleteJson($this->createUrl($this->url, $project->id, $category->id));
+//
+//
+//    $this->assertResponseStatus(400);
+//  }
+//
+//  /** @test */
+//  public function it_deletes_the_category_400_if_wrong_authentication()
+//  {
+//    $project = factory(App\Models\Project::class)->create();
+//    $project->users()->attach($this->connectedUser->id);
+//    $category = factory(App\Models\Category::class)->create([
+//        'project_id' => $project->id
+//    ]);
+//
+//    $this
+//        ->setAuthentication(AuthEnum::WRONG)
+//        ->deleteJson($this->createUrl($this->url, $project->id, $category->id));
+//
+//    $this->assertResponseStatus(400);
+//  }
+//
+//  /** @test */
+//  public function it_deletes_a_category_403_if_forbidden()
+//  {
+//    $user = factory(App\Models\User::class)->create();
+//    $project = factory(App\Models\Project::class)->create();
+//    $project->users()->attach($user->id);
+//    $category = factory(App\Models\Category::class)->create([
+//        'project_id' => $project->id
+//    ]);
+//
+//    $this->deleteJson($this->createUrl($this->url, $project->id, $category->id));
+//
+//    $this->assertResponseStatus(403);
+//  }
+//
+//  /** @test */
+//  public function it_deletes_a_category_404_if_project_not_found()
+//  {
+//    $project = factory(App\Models\Project::class)->create();
+//    $project->users()->attach($this->connectedUser->id);
+//    $category = factory(App\Models\Category::class)->create([
+//        'project_id' => $project->id
+//    ]);
+//
+//    $this->deleteJson($this->createUrl($this->url, 0, $category->id));
+//
+//    $this->assertResponseStatus(404);
+//  }
+//
+//  /** @test */
+//  public function it_deletes_a_category_404_if_category_not_found()
+//  {
+//    $project = factory(App\Models\Project::class)->create();
+//    $project->users()->attach($this->connectedUser->id);
+//
+//    $this->deleteJson($this->createUrl($this->url, $project->id, 0));
+//
+//    $this->assertResponseStatus(404);
+//  }
 }

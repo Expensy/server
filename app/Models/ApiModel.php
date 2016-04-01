@@ -45,25 +45,33 @@ class ApiModel extends Model
    */
   public function validate($data, $action)
   {
-    $rules = [];
+    $allRules = [];
     switch ($action) {
       case Action::CREATION :
-        $rules = $this->getRulesForCreation();
+        $allRules = $this->getRulesForCreation();
         break;
       case Action::UPDATE :
         $allRules = $this->getRulesForUpdate();
-
-        $rules = Arrays::invoke($allRules, function ($rules) use ($data) {
-          return Arrays::invoke($rules, function ($rule) use ($data) {
-            if (strpos($rule, '{id}') !== false) {
-              return str_replace('{id}', $data['id'], $rule);
-            }
-
-            return $rule;
-          });
-        });
         break;
     }
+
+    $rules = Arrays::invoke($allRules, function ($rules) use ($data) {
+      return Arrays::invoke($rules, function ($rule) use ($data) {
+        $allMatches = [];
+        $matchNumber = preg_match_all('/{\w*}/', $rule, $allMatches);
+
+        if ($matchNumber > 0) {
+          foreach ($allMatches as $matches) {
+            foreach ($matches as $match) {
+              $property = substr($match, 1, count($match) - 2);
+              $rule = str_replace($match, $data[ $property ], $rule);
+            }
+          }
+        }
+
+        return $rule;
+      });
+    });
 
     $validator = Validator::make($data, $rules);
 

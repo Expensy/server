@@ -28,7 +28,19 @@ abstract class BaseRepository
     $instance = new $type();
     $validated = $instance->validate($data, Action::CREATION);
 
-    $object = new PostValidator($validated, $instance->errors());
+    $errors = [];
+
+    if (!$validated) {
+      $validationErrors = $instance->errors();
+
+      if (count($validationErrors)) {
+        $errors = Arrays::invoke($validationErrors, function ($error) {
+          return array_keys($error);
+        });
+      }
+    }
+
+    $object = new PostValidator($validated, $errors);
 
     return $object;
   }

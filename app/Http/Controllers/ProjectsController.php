@@ -2,10 +2,12 @@
 
 namespace App\Http\controllers;
 
+use App\Repositories\CategoryRepository;
 use App\Repositories\ProjectRepository;
 use App\Repositories\UserRepository;
 use App\Transformers\ProjectTransformer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Underscore\Types\Arrays;
@@ -15,14 +17,16 @@ class ProjectsController extends ApiController
   protected $projectRepository;
   protected $projectTransformer;
   protected $userRepository;
+  protected $categoryRepository;
 
-  function __construct(ProjectRepository $projectRepository, ProjectTransformer $projectTransformer, UserRepository $userRepository)
+  function __construct(ProjectRepository $projectRepository, ProjectTransformer $projectTransformer, UserRepository $userRepository, CategoryRepository $categoryRepository)
   {
     $this->middleware('jwt.auth');
 
     $this->projectRepository = $projectRepository;
     $this->projectTransformer = $projectTransformer;
     $this->userRepository = $userRepository;
+    $this->categoryRepository = $categoryRepository;
   }
 
   /**
@@ -57,9 +61,25 @@ class ProjectsController extends ApiController
       return $this->respondFailedValidation($validation->messages);
     }
 
-    $createdProject = $this->projectRepository->create($inputs);
+    DB::beginTransaction();
 
-    return $this->respondCreated($this->projectTransformer->fullTransform($createdProject));
+    $createdProject = $this->projectRepository->create($inputs);
+    $createdCategory = $this->categoryRepository->create([
+        'title'      => env('DEFAULT_CATEGORY_TITLE', 'category 1'),
+        'color'      => env('DEFAULT_CATEGORY_COLOR', '#419fdb'),
+        'by_default' => true,
+        'project_id' => $createdProject->id
+    ]);
+
+    if (!$createdProject || !$createdCategory) {
+      DB::rollback();
+
+      return $this->respondInternalError();
+    } else {
+      DB::commit();
+
+      return $this->respondCreated($this->projectTransformer->fullTransform($createdProject));
+    }
   }
 
 
@@ -161,9 +181,14 @@ class ProjectsController extends ApiController
       return $this->respondForbidden();
     }
 
-    $this->projectRepository->addUser($id, $userId);
+    if ($project->users->contains('id', $userId)) {
+      return $this->respondFailedValidation('User already in the project.');
+    }
 
-    return $this->respond($this->projectTransformer->fullTransform($project));
+    $this->projectRepository->addUser($id, $userId);
+    $updatedProject = $this->projectRepository->find($id);
+
+    return $this->respond($this->projectTransformer->fullTransform($updatedProject));
   }
 
   public function removeMember(Request $request, $id, $userId)
