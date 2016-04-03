@@ -65,7 +65,7 @@ class ProjectsController extends ApiController
 
     $createdProject = $this->projectRepository->create($inputs);
     $createdCategory = $this->categoryRepository->create([
-        'title'      => env('DEFAULT_CATEGORY_TITLE', 'category 1'),
+        'title'      => env('DEFAULT_CATEGORY_TITLE', 'Category 1'),
         'color'      => env('DEFAULT_CATEGORY_COLOR', '#419fdb'),
         'by_default' => true,
         'project_id' => $createdProject->id
