@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use Log;
 use Validator;
 use Underscore\Types\Arrays;
 
@@ -41,11 +42,11 @@ class ValidationExtensionServiceProvider extends ServiceProvider
       $categories = Project::find($parameters[0])->categories->all();
 
       return Arrays::matchesAny($categories, function ($category) use ($parameters) {
-        if ($parameters[1]) {
+        Log::info('' . isset($parameters[1]) == true);
+        if (isset($parameters[1])) {
           return $category->by_default == true && $category->id != $parameters[1];
         }
-
-        return $category->by_default == true;
+        return $category->by_default == false;
       });
     });
 
