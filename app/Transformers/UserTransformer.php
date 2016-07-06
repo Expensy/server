@@ -11,7 +11,8 @@ class UserTransformer extends Transformer {
   public function basicTransform($item) {
     return [
       'id' => $item['id'],
-      'name' => $item['name'],
+      'first_name' => $item['first_name'],
+      'last_name' => $item['last_name'],
       'email' => $item['email']
     ];
   }

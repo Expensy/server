@@ -28,7 +28,7 @@ class User extends ApiModel implements
    * @var array
    */
   protected $fillable = [
-    'name', 'email', 'password',
+    'first_name', 'last_name', 'email', 'password',
   ];
 
   /**
@@ -41,13 +41,15 @@ class User extends ApiModel implements
   ];
 
   protected $rulesForCreation = [
-    'name' => ['required'],
+    'first_name' => ['required'],
+    'last_name' => ['required'],
     'email' => ['required', 'email', 'unique:users,email'],
     'password' => ['required', 'confirmed']
   ];
 
   protected $rulesForUpdate = [
-    'name' => ['required'],
+    'first_name' => ['required'],
+    'last_name' => ['required'],
     'email' => ['required', 'email', 'unique:users,email,{id}'],
     'password_old' => ['old_password', 'required_with:password']
   ];
