@@ -25,7 +25,7 @@ class Project extends ApiModel {
   ];
 
   public function users() {
-    return $this->belongsToMany('App\Models\User')->orderBy('name', 'asc');
+    return $this->belongsToMany('App\Models\User')->orderBy('last_name', 'asc');
   }
 
   public function categories() {
