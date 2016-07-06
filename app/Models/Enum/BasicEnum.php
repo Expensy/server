@@ -1,44 +1,38 @@
 <?php
 
-
 namespace App\Models\Enum;
 
+abstract class BasicEnum {
+  private static $constCacheArray = null;
 
-abstract class BasicEnum
-{
-    private static $constCacheArray = null;
+  public static function isValidName($name, $strict = false) {
+    $constants = self::getConstants();
 
-    private static function getConstants()
-    {
-        if (self::$constCacheArray == null) {
-            self::$constCacheArray = [];
-        }
-        $calledClass = get_called_class();
-        if (!array_key_exists($calledClass, self::$constCacheArray)) {
-            $reflect = new ReflectionClass($calledClass);
-            self::$constCacheArray[ $calledClass ] = $reflect->getConstants();
-        }
-
-        return self::$constCacheArray[ $calledClass ];
+    if ($strict) {
+      return array_key_exists($name, $constants);
     }
 
-    public static function isValidName($name, $strict = false)
-    {
-        $constants = self::getConstants();
+    $keys = array_map('strtolower', array_keys($constants));
 
-        if ($strict) {
-            return array_key_exists($name, $constants);
-        }
+    return in_array(strtolower($name), $keys);
+  }
 
-        $keys = array_map('strtolower', array_keys($constants));
-
-        return in_array(strtolower($name), $keys);
+  private static function getConstants() {
+    if (self::$constCacheArray == null) {
+      self::$constCacheArray = [];
+    }
+    $calledClass = get_called_class();
+    if (!array_key_exists($calledClass, self::$constCacheArray)) {
+      $reflect = new ReflectionClass($calledClass);
+      self::$constCacheArray[ $calledClass ] = $reflect->getConstants();
     }
 
-    public static function isValidValue($value)
-    {
-        $values = array_values(self::getConstants());
+    return self::$constCacheArray[ $calledClass ];
+  }
 
-        return in_array($value, $values, $strict = true);
-    }
+  public static function isValidValue($value) {
+    $values = array_values(self::getConstants());
+
+    return in_array($value, $values, $strict = true);
+  }
 }

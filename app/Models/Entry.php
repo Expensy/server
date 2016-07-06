@@ -4,8 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Entry extends ApiModel
-{
+class Entry extends ApiModel {
   use softDeletes;
 
   protected $dates = ['date'];
@@ -18,30 +17,28 @@ class Entry extends ApiModel
   protected $table = 'entries';
 
   protected $fillable = ['title', 'price', 'date', 'content', 'project_id', 'category_id'];
-  
+
   protected $rulesForCreation = [
-      'title'       => ['required'],
-      'price'       => ['required', 'integer', 'min:0'],
-      'date'        => ['required', 'date'],
-      'project_id'  => ['required', 'exists:projects,id'],
-      'category_id' => ['required', 'exists:categories,id']
+    'title' => ['required'],
+    'price' => ['required', 'integer', 'min:0'],
+    'date' => ['required', 'date'],
+    'project_id' => ['required', 'exists:projects,id'],
+    'category_id' => ['required', 'exists:categories,id']
   ];
 
   protected $rulesForUpdate = [
-      'title'       => ['required'],
-      'price'       => ['required', 'integer', 'min:0'],
-      'date'        => ['required', 'date'],
-      'project_id'  => ['required', 'exists:projects,id'],
-      'category_id' => ['required', 'exists:categories,id']
+    'title' => ['required'],
+    'price' => ['required', 'integer', 'min:0'],
+    'date' => ['required', 'date'],
+    'project_id' => ['required', 'exists:projects,id'],
+    'category_id' => ['required', 'exists:categories,id']
   ];
 
-  public function project()
-  {
+  public function project() {
     return $this->belongsTo('App\Models\Project');
   }
 
-  public function category()
-  {
+  public function category() {
     return $this->belongsTo('App\Models\Category');
   }
 }

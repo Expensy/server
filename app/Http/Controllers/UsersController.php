@@ -3,18 +3,16 @@
 namespace App\Http\controllers;
 
 use App\Repositories\UserRepository;
+use App\Transformers\UserTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use App\Transformers\UserTransformer;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class UsersController extends ApiController
-{
+class UsersController extends ApiController {
   protected $userTransformer;
   protected $userRepository;
 
-  function __construct(UserRepository $userRepository, UserTransformer $userTransformer)
-  {
+  function __construct(UserRepository $userRepository, UserTransformer $userTransformer) {
     $this->middleware('jwt.auth', ['except' => ['store']]);
 
     $this->userRepository = $userRepository;
@@ -28,12 +26,11 @@ class UsersController extends ApiController
    *
    * @return Response
    */
-  public function index(Request $request)
-  {
+  public function index(Request $request) {
     $users = $this->userRepository->filter($request->all());
 
     return $this->respondWithPagination($users, [
-        'items' => $this->userTransformer->transformCollection($users->items())
+      'items' => $this->userTransformer->transformCollection($users->items())
     ]);
   }
 
@@ -44,8 +41,7 @@ class UsersController extends ApiController
    *
    * @return Response
    */
-  public function store(Request $request)
-  {
+  public function store(Request $request) {
     $inputs = $request->all();
     $validation = $this->userRepository->isValidForCreation('App\Models\User', $inputs);
 
@@ -69,8 +65,7 @@ class UsersController extends ApiController
    *
    * @return Response
    */
-  public function show(Request $request, $id)
-  {
+  public function show(Request $request, $id) {
     if ($id === "current") {
       $user = JWTAuth::parseToken()->toUser();
     } else {
@@ -80,7 +75,6 @@ class UsersController extends ApiController
     if (!$user) {
       return $this->respondNotFound('User does not exist.');
     }
-
 
     return $this->respond($this->userTransformer->fullTransform($user));
   }
@@ -95,8 +89,7 @@ class UsersController extends ApiController
    *
    * @return Response
    */
-  public function update(Request $request, $id)
-  {
+  public function update(Request $request, $id) {
     $user = $this->userRepository->find($id);
     $inputs = $request->all();
     $inputs['id'] = $id;
@@ -132,8 +125,7 @@ class UsersController extends ApiController
    *
    * @return Response
    */
-  public function destroy(Request $request, $id)
-  {
+  public function destroy(Request $request, $id) {
     $user = $this->userRepository->find($id);
 
     if (!$user) {

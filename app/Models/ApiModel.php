@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Models;
-
 
 use BadMethodCallException;
 use Illuminate\Database\Eloquent\Model;
@@ -11,8 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Underscore\Types\Arrays;
 
-class ApiModel extends Model
-{
+class ApiModel extends Model {
   /**
    * common rules validation for creation and update
    *
@@ -43,8 +40,7 @@ class ApiModel extends Model
    *
    * @return bool true if validated, false otherwise
    */
-  public function validate($data, $action)
-  {
+  public function validate($data, $action) {
     $allRules = [];
     switch ($action) {
       case Action::CREATION :
@@ -90,8 +86,7 @@ class ApiModel extends Model
    * @throws BadMethodCallException
    * @return mixed
    */
-  public function getRulesForCreation()
-  {
+  public function getRulesForCreation() {
     if (is_null($this->rulesForCreation)) {
       throw new BadMethodCallException('Add your `$rulesForCreation` array');
     }
@@ -105,8 +100,7 @@ class ApiModel extends Model
    * @throws BadMethodCallException
    * @return mixed
    */
-  public function getRulesForUpdate()
-  {
+  public function getRulesForUpdate() {
 
     if (is_null($this->rulesForUpdate)) {
       throw new BadMethodCallException('Add your `$rulesForUpdate` array');
@@ -120,8 +114,7 @@ class ApiModel extends Model
    *
    * @return mixed
    */
-  public function errors()
-  {
+  public function errors() {
     return $this->errors;
   }
 }

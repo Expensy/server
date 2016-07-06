@@ -10,15 +10,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Underscore\Types\Arrays;
 
-class EntriesController extends ApiController
-{
+class EntriesController extends ApiController {
   protected $entryTransformer;
   protected $entryRepository;
   protected $projectRepository;
   private $categoryRepository;
 
-  function __construct(EntryRepository $entry, EntryTransformer $entryTransformer, ProjectRepository $projectRepository, CategoryRepository $categoryRepository)
-  {
+  function __construct(EntryRepository $entry, EntryTransformer $entryTransformer, ProjectRepository $projectRepository, CategoryRepository $categoryRepository) {
     $this->middleware('jwt.auth');
     $this->middleware('expensy.project');
 
@@ -36,13 +34,12 @@ class EntriesController extends ApiController
    *
    * @return Response
    */
-  public function index(Request $request, int $projectId)
-  {
+  public function index(Request $request, int $projectId) {
     $filters = Arrays::merge($request->all(), ['project_id' => $projectId]);
     $entries = $this->entryRepository->filter($filters);
 
     return $this->respondWithPagination($entries, [
-        'items' => $this->entryTransformer->transformCollection($entries->items())
+      'items' => $this->entryTransformer->transformCollection($entries->items())
     ]);
   }
 
@@ -54,8 +51,7 @@ class EntriesController extends ApiController
    *
    * @return Response
    */
-  public function store(Request $request, int $projectId)
-  {
+  public function store(Request $request, int $projectId) {
     $inputs = $request->all();
     $inputs['project_id'] = $projectId;
 
@@ -82,8 +78,7 @@ class EntriesController extends ApiController
    * @internal param int $id
    *
    */
-  public function show(Request $request, $projectId, $entryId)
-  {
+  public function show(Request $request, $projectId, $entryId) {
     $entry = $this->entryRepository->find($entryId);
 
     if (!$entry) {
@@ -105,8 +100,7 @@ class EntriesController extends ApiController
    * @internal param int $id
    *
    */
-  public function update(Request $request, $projectId, $entryId)
-  {
+  public function update(Request $request, $projectId, $entryId) {
     $entry = $this->entryRepository->find($entryId);
     $inputs = $request->all();
     $inputs['project_id'] = $projectId;
@@ -138,8 +132,7 @@ class EntriesController extends ApiController
    * @internal param int $id
    *
    */
-  public function destroy(Request $request, $projectId, $entryId)
-  {
+  public function destroy(Request $request, $projectId, $entryId) {
     $entry = $this->entryRepository->find($entryId);
 
     if (!$entry) {

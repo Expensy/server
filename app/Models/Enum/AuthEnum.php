@@ -8,9 +8,7 @@
 
 namespace App\Models\Enum;
 
-
-class AuthEnum extends BasicEnum
-{
+class AuthEnum extends BasicEnum {
   const SUCCESS = 0;
   const FORBIDDEN = 1;
   const INTERNAL_ERROR = 2;

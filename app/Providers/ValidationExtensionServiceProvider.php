@@ -6,19 +6,16 @@ use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use Log;
-use Validator;
 use Underscore\Types\Arrays;
+use Validator;
 
-class ValidationExtensionServiceProvider extends ServiceProvider
-{
+class ValidationExtensionServiceProvider extends ServiceProvider {
 
-  public function register()
-  {
+  public function register() {
     // TODO: Implement register() method.
   }
 
-  public function boot()
-  {
+  public function boot() {
     Validator::extend('unique_project_name', function ($attribute, $value, $parameters) {
       $connectedUser = Auth::user();
       $projects = $connectedUser->projects->all();
@@ -46,6 +43,7 @@ class ValidationExtensionServiceProvider extends ServiceProvider
         if (isset($parameters[1])) {
           return $category->by_default == true && $category->id != $parameters[1];
         }
+
         return $category->by_default == false;
       });
     });

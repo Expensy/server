@@ -5,8 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Project;
 use Closure;
 
-class ProjectMiddleware
-{
+class ProjectMiddleware {
   /**
    * Handle an incoming request.
    *
@@ -15,8 +14,7 @@ class ProjectMiddleware
    *
    * @return mixed
    */
-  public function handle($request, Closure $next)
-  {
+  public function handle($request, Closure $next) {
     if (!is_null($request->id) || !is_null($request->projects)) {
       $projectId = $request->projects ?: $request->id;
       $project = Project::find($projectId);

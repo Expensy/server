@@ -4,11 +4,9 @@ namespace App\Repositories;
 
 use JWTAuth;
 
-class AuthRepository
-{
+class AuthRepository {
 
-  public function authenticate($credentials)
-  {
+  public function authenticate($credentials) {
     return JWTAuth::attempt($credentials);
   }
 }

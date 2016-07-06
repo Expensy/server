@@ -1,46 +1,38 @@
 <?php
 
-
 namespace App\Transformers;
-
 
 use Underscore\Types\Arrays;
 
-class UserTransformer extends Transformer
-{
-  public function __construct()
-  {
+class UserTransformer extends Transformer {
+  public function __construct() {
   }
 
-  public function basicTransform($item)
-  {
+  public function basicTransform($item) {
     return [
-        'id'    => $item['id'],
-        'name'  => $item['name'],
-        'email' => $item['email']
+      'id' => $item['id'],
+      'name' => $item['name'],
+      'email' => $item['email']
     ];
   }
 
-  public function extendedTransform($item)
-  {
+  public function extendedTransform($item) {
     return Arrays::merge(
-        $this->basicTransform($item),
-        [
-            'projects' => $this->_getProjects($item)
-        ]);
+      $this->basicTransform($item),
+      [
+        'projects' => $this->_getProjects($item)
+      ]);
   }
 
-  public function fullTransform($item)
-  {
+  public function fullTransform($item) {
     return $this->extendedTransform($item);
   }
 
-  private function _getProjects($item)
-  {
+  private function _getProjects($item) {
     return Arrays::each($item->projects->all(), function ($project) {
       return [
-          'id'    => $project['id'],
-          'title' => $project['title']
+        'id' => $project['id'],
+        'title' => $project['title']
       ];
     });
   }

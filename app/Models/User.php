@@ -4,16 +4,15 @@ namespace App\Models;
 
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Foundation\Auth\Access\Authorizable;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 
 class User extends ApiModel implements
-    AuthenticatableContract,
-    AuthorizableContract,
-    CanResetPasswordContract
-{
+  AuthenticatableContract,
+  AuthorizableContract,
+  CanResetPasswordContract {
   use Authenticatable, Authorizable, CanResetPassword;
 
   /**
@@ -29,7 +28,7 @@ class User extends ApiModel implements
    * @var array
    */
   protected $fillable = [
-      'name', 'email', 'password',
+    'name', 'email', 'password',
   ];
 
   /**
@@ -38,23 +37,22 @@ class User extends ApiModel implements
    * @var array
    */
   protected $hidden = [
-      'password', 'remember_token',
+    'password', 'remember_token',
   ];
 
   protected $rulesForCreation = [
-      'name'     => ['required'],
-      'email'    => ['required', 'email', 'unique:users,email'],
-      'password' => ['required', 'confirmed']
+    'name' => ['required'],
+    'email' => ['required', 'email', 'unique:users,email'],
+    'password' => ['required', 'confirmed']
   ];
 
   protected $rulesForUpdate = [
-      'name'         => ['required'],
-      'email'        => ['required', 'email', 'unique:users,email,{id}'],
-      'password_old' => ['old_password', 'required_with:password']
+    'name' => ['required'],
+    'email' => ['required', 'email', 'unique:users,email,{id}'],
+    'password_old' => ['old_password', 'required_with:password']
   ];
 
-  public function projects()
-  {
+  public function projects() {
     return $this->belongsToMany('App\Models\Project')->orderBy('title', 'asc');
   }
 }

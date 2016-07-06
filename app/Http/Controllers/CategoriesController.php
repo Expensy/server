@@ -2,21 +2,19 @@
 
 namespace App\Http\controllers;
 
-use App\Repositories\ProjectRepository;
-use Illuminate\Http\Request;
 use App\Repositories\CategoryRepository;
-use Illuminate\Support\Facades\Response;
+use App\Repositories\ProjectRepository;
 use App\Transformers\CategoryTransformer;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 use Underscore\Types\Arrays;
 
-class CategoriesController extends ApiController
-{
+class CategoriesController extends ApiController {
   protected $categoryTransformer;
   protected $categoryRepository;
   protected $projectRepository;
 
-  function __construct(CategoryRepository $categoryRepository, CategoryTransformer $categoryTransformer, ProjectRepository $projectRepository)
-  {
+  function __construct(CategoryRepository $categoryRepository, CategoryTransformer $categoryTransformer, ProjectRepository $projectRepository) {
     $this->middleware('jwt.auth');
     $this->middleware('expensy.project');
 
@@ -33,13 +31,12 @@ class CategoriesController extends ApiController
    *
    * @return Response
    */
-  public function index(Request $request, int $projectId)
-  {
+  public function index(Request $request, int $projectId) {
     $filters = Arrays::merge($request->all(), ['project_id' => $projectId]);
     $categories = $this->categoryRepository->filter($filters);
 
     return $this->respondWithPagination($categories, [
-        'items' => $this->categoryTransformer->transformCollection($categories->items())
+      'items' => $this->categoryTransformer->transformCollection($categories->items())
     ]);
   }
 
@@ -51,8 +48,7 @@ class CategoriesController extends ApiController
    *
    * @return Response
    */
-  public function store(Request $request, int $projectId)
-  {
+  public function store(Request $request, int $projectId) {
     $inputs = $request->all();
     $inputs['project_id'] = $projectId;
 
@@ -79,8 +75,7 @@ class CategoriesController extends ApiController
    * @internal param int $id
    *
    */
-  public function show(Request $request, $projectId, $categoryId)
-  {
+  public function show(Request $request, $projectId, $categoryId) {
     $category = $this->categoryRepository->find($categoryId);
 
     if (!$category) {
@@ -102,8 +97,7 @@ class CategoriesController extends ApiController
    * @internal param int $id
    *
    */
-  public function update(Request $request, $projectId, $categoryId)
-  {
+  public function update(Request $request, $projectId, $categoryId) {
     $category = $this->categoryRepository->find($categoryId);
     $inputs = $request->all();
     $inputs['project_id'] = $projectId;
@@ -136,20 +130,19 @@ class CategoriesController extends ApiController
    * @internal param int $id
    *
    */
-  public function destroy(Request $request, $projectId, $categoryId)
-  {
+  public function destroy(Request $request, $projectId, $categoryId) {
 
     //TODO you have to make sure you have at least one category for a project
     //TODO what to do with Entries relying on this category ??
 
-//    $category = $this->categoryRepository->find($categoryId);
-//
-//    if (!$category) {
-//      return $this->respondNotFound('Category does not exist.');
-//    }
-//
-//    $this->categoryRepository->delete($categoryId);
-//
-//    return $this->respondNoContent();
+    //    $category = $this->categoryRepository->find($categoryId);
+    //
+    //    if (!$category) {
+    //      return $this->respondNotFound('Category does not exist.');
+    //    }
+    //
+    //    $this->categoryRepository->delete($categoryId);
+    //
+    //    return $this->respondNoContent();
   }
 }

@@ -6,16 +6,14 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\Response as IlluminateResponse;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class ApiController extends Controller
-{
+class ApiController extends Controller {
 
   protected $statusCode = IlluminateResponse::HTTP_OK;
 
   /**
    * @return mixed
    */
-  public function getStatusCode()
-  {
+  public function getStatusCode() {
     return $this->statusCode;
   }
 
@@ -24,16 +22,14 @@ class ApiController extends Controller
    *
    * @return $this
    */
-  public function setStatusCode($statusCode)
-  {
+  public function setStatusCode($statusCode) {
     $this->statusCode = $statusCode;
 
     return $this;
   }
 
 
-  public function canConnectedUserEditElement($id)
-  {
+  public function canConnectedUserEditElement($id) {
     $user = JWTAuth::parseToken()->toUser();
 
     return $user->id === $id;
@@ -45,8 +41,7 @@ class ApiController extends Controller
    *
    * @return \Illuminate\Http\JsonResponse
    */
-  public function respond($data = [], $headers = [])
-  {
+  public function respond($data = [], $headers = []) {
     return response()->json($data, $this->getStatusCode(), $headers);
   }
 
@@ -55,22 +50,20 @@ class ApiController extends Controller
    *
    * @return \Illuminate\Http\JsonResponse
    */
-  public function respondWithError($message)
-  {
+  public function respondWithError($message) {
     return $this->respond([
-        'message' => $message,
+      'message' => $message,
     ]);
   }
 
-  public function respondWithPagination(LengthAwarePaginator $items, $data)
-  {
+  public function respondWithPagination(LengthAwarePaginator $items, $data) {
     $response = array_merge($data, [
-        'paginate' => [
-            'total_count'  => $items->total(),
-            'total_pages'  => ceil($items->total() / $items->perPage()),
-            'current_page' => $items->currentPage(),
-            'limit'        => $items->perPage()
-        ]
+      'paginate' => [
+        'total_count' => $items->total(),
+        'total_pages' => ceil($items->total() / $items->perPage()),
+        'current_page' => $items->currentPage(),
+        'limit' => $items->perPage()
+      ]
     ]);
 
     return $this->respond($response);
@@ -82,30 +75,27 @@ class ApiController extends Controller
    *
    * @return mixed
    */
-  public function respondCreated(Array $data)
-  {
+  public function respondCreated(Array $data) {
     return $this
-        ->setStatusCode(IlluminateResponse::HTTP_CREATED)
-        ->respond($data);
+      ->setStatusCode(IlluminateResponse::HTTP_CREATED)
+      ->respond($data);
   }
 
   /**
    *
    * @return mixed
    */
-  public function respondNoContent()
-  {
+  public function respondNoContent() {
     return $this
-        ->setStatusCode(IlluminateResponse::HTTP_NO_CONTENT)
-        ->respond();
+      ->setStatusCode(IlluminateResponse::HTTP_NO_CONTENT)
+      ->respond();
   }
 
 
-  public function respondNotFound($message = 'Not Found !')
-  {
+  public function respondNotFound($message = 'Not Found !') {
     return $this
-        ->setStatusCode(IlluminateResponse::HTTP_NOT_FOUND)
-        ->respondWithError($message);
+      ->setStatusCode(IlluminateResponse::HTTP_NOT_FOUND)
+      ->respondWithError($message);
   }
 
   /**
@@ -113,11 +103,10 @@ class ApiController extends Controller
    *
    * @return \Illuminate\Http\JsonResponse
    */
-  public function respondInternalError($message = 'Internal Error !')
-  {
+  public function respondInternalError($message = 'Internal Error !') {
     return $this
-        ->setStatusCode(IlluminateResponse::HTTP_INTERNAL_SERVER_ERROR)
-        ->respondWithError($message);
+      ->setStatusCode(IlluminateResponse::HTTP_INTERNAL_SERVER_ERROR)
+      ->respondWithError($message);
   }
 
   /**
@@ -125,11 +114,10 @@ class ApiController extends Controller
    *
    * @return mixed
    */
-  public function respondFailedValidation($message = 'Parameters failed validation')
-  {
+  public function respondFailedValidation($message = 'Parameters failed validation') {
     return $this
-        ->setStatusCode(IlluminateResponse::HTTP_BAD_REQUEST)
-        ->respondWithError($message);
+      ->setStatusCode(IlluminateResponse::HTTP_BAD_REQUEST)
+      ->respondWithError($message);
   }
 
   /**
@@ -137,11 +125,10 @@ class ApiController extends Controller
    *
    * @return mixed
    */
-  public function respondUnauthorized($message = 'Invalid credentials')
-  {
+  public function respondUnauthorized($message = 'Invalid credentials') {
     return $this
-        ->setStatusCode(IlluminateResponse::HTTP_UNAUTHORIZED)
-        ->respondWithError($message);
+      ->setStatusCode(IlluminateResponse::HTTP_UNAUTHORIZED)
+      ->respondWithError($message);
   }
 
   /**
@@ -149,10 +136,9 @@ class ApiController extends Controller
    *
    * @return mixed
    */
-  public function respondForbidden($message = 'Forbidden')
-  {
+  public function respondForbidden($message = 'Forbidden') {
     return $this
-        ->setStatusCode(IlluminateResponse::HTTP_FORBIDDEN)
-        ->respondWithError($message);
+      ->setStatusCode(IlluminateResponse::HTTP_FORBIDDEN)
+      ->respondWithError($message);
   }
 }

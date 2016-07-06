@@ -1,24 +1,20 @@
 <?php
 
-
 namespace App\Utils;
 
+class PostValidator {
+  /**
+   * @var boolean
+   */
+  public $passes;
 
-class PostValidator
-{
-    /**
-     * @var boolean
-     */
-    public $passes;
+  /**
+   * @var array
+   */
+  public $messages;
 
-    /**
-     * @var array
-     */
-    public $messages;
-
-    function __construct($passes, $messages)
-    {
-        $this->passes = $passes;
-        $this->messages = $messages;
-    }
+  function __construct($passes, $messages) {
+    $this->passes = $passes;
+    $this->messages = $messages;
+  }
 }

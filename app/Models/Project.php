@@ -5,8 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
-class Project extends ApiModel
-{
+class Project extends ApiModel {
   use SoftDeletes;
 
   /**
@@ -19,29 +18,25 @@ class Project extends ApiModel
   protected $fillable = ['title'];
 
   protected $rulesForCreation = [
-      'title' => ['required', 'unique_project_name']
+    'title' => ['required', 'unique_project_name']
   ];
   protected $rulesForUpdate = [
-      'title' => ['required', 'unique_project_name']
+    'title' => ['required', 'unique_project_name']
   ];
 
-  public function users()
-  {
+  public function users() {
     return $this->belongsToMany('App\Models\User')->orderBy('name', 'asc');
   }
 
-  public function categories()
-  {
+  public function categories() {
     return $this->hasMany('App\Models\Category')->orderBy('title', 'asc');
   }
 
-  public function entries()
-  {
+  public function entries() {
     return $this->hasMany('App\Models\Entry')->orderBy('date', 'desc');
   }
 
-  public function isAccessibleByConnectedUser()
-  {
+  public function isAccessibleByConnectedUser() {
     $connectedUserId = Auth::user()->id;
 
     return $this->users->contains(function ($index, $user) use ($connectedUserId) {
