@@ -1,17 +1,15 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
-class AddedByDefaultCategoriesTable extends Migration
-{
+class AddedByDefaultCategoriesTable extends Migration {
   /**
    * Run the migrations.
    *
    * @return void
    */
-  public function up()
-  {
+  public function up() {
     Schema::table('categories', function (Blueprint $table) {
       $table->boolean('by_default')->after('color');
     });
@@ -22,8 +20,7 @@ class AddedByDefaultCategoriesTable extends Migration
    *
    * @return void
    */
-  public function down()
-  {
+  public function down() {
     Schema::table('categories', function (Blueprint $table) {
       $table->dropColumn('by_default');
     });
