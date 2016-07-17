@@ -5,11 +5,11 @@ namespace App\Providers;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
-use Log;
 use Underscore\Types\Arrays;
 use Validator;
 
-class ValidationExtensionServiceProvider extends ServiceProvider {
+class ValidationExtensionServiceProvider extends ServiceProvider
+{
 
   public function register() {
     // TODO: Implement register() method.
@@ -36,10 +36,13 @@ class ValidationExtensionServiceProvider extends ServiceProvider {
         return true;
       }
 
-      $categories = Project::find($parameters[0])->categories->all();
+      $project = Project::find($parameters[0]);
+      if (is_null($project)) {
+        return false;
+      }
+      $categories = $project->categories->all();
 
       return Arrays::matchesAny($categories, function ($category) use ($parameters) {
-        Log::info('' . isset($parameters[1]) == true);
         if (isset($parameters[1])) {
           return $category->by_default == true && $category->id != $parameters[1];
         }

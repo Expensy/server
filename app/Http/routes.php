@@ -38,8 +38,18 @@ Route::group(['prefix' => 'api'], function () {
     Route::resource('projects', 'ProjectsController');
     Route::put('projects/{id}/members/{userId}', 'ProjectsController@addMember');
     Route::delete('projects/{id}/members/{userId}', 'ProjectsController@removeMember');
-    Route::resource('projects.categories', 'CategoriesController');
+
+    Route::get('projects/{projectId}/categories', 'CategoriesController@index');
+    Route::get('categories/{id}', 'CategoriesController@show');
+    Route::post('categories', 'CategoriesController@store');
+    Route::put('categories/{id}', 'CategoriesController@update');
     Route::resource('projects.entries', 'EntriesController');
+
+    Route::get('projects/{projectId}/entries', 'EntriesController@index');
+    Route::get('entries/{id}', 'EntriesController@show');
+    Route::post('entries', 'EntriesController@store');
+    Route::put('entries/{id}', 'EntriesController@update');
+    Route::delete('entries/{id}', 'EntriesController@destroy');
   });
 });
 

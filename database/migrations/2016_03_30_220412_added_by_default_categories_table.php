@@ -11,7 +11,7 @@ class AddedByDefaultCategoriesTable extends Migration {
    */
   public function up() {
     Schema::table('categories', function (Blueprint $table) {
-      $table->boolean('by_default')->after('color');
+      $table->boolean('by_default')->after('color')->default(0);
     });
   }
 

@@ -44,13 +44,11 @@ class CategoriesController extends ApiController {
    * Store a newly created resource in storage.
    *
    * @param Request $request
-   * @param int     $projectId
    *
    * @return Response
    */
-  public function store(Request $request, int $projectId) {
+  public function store(Request $request) {
     $inputs = $request->all();
-    $inputs['project_id'] = $projectId;
 
     $validation = $this->categoryRepository->isValidForCreation('App\Models\Category', $inputs);
 
@@ -68,15 +66,14 @@ class CategoriesController extends ApiController {
    * Display the specified resource.
    *
    * @param Request $request
-   * @param         $projectId
-   * @param         $categoryId
+   * @param         $id
    *
    * @return Response
    * @internal param int $id
    *
    */
-  public function show(Request $request, $projectId, $categoryId) {
-    $category = $this->categoryRepository->find($categoryId);
+  public function show(Request $request, $id) {
+    $category = $this->categoryRepository->find($id);
 
     if (!$category) {
       return $this->respondNotFound('Category does not exist.');
@@ -90,18 +87,16 @@ class CategoriesController extends ApiController {
    * Update the specified resource in storage.
    *
    * @param Request $request
-   * @param         $projectId
-   * @param         $categoryId
+   * @param         $id
    *
    * @return Response
    * @internal param int $id
    *
    */
-  public function update(Request $request, $projectId, $categoryId) {
-    $category = $this->categoryRepository->find($categoryId);
+  public function update(Request $request, $id) {
+    $category = $this->categoryRepository->find($id);
     $inputs = $request->all();
-    $inputs['project_id'] = $projectId;
-    $inputs['id'] = $categoryId;
+    $inputs['id'] = $id;
 
     if (!$category) {
       return $this->respondNotFound('Category does not exist.');
@@ -113,7 +108,7 @@ class CategoriesController extends ApiController {
       return $this->respondFailedValidation($validation->messages);
     }
 
-    $updatedCategory = $this->categoryRepository->update($categoryId, $inputs);
+    $updatedCategory = $this->categoryRepository->update($id, $inputs);
 
     return $this->respond($this->categoryTransformer->fullTransform($updatedCategory));
   }
@@ -123,14 +118,13 @@ class CategoriesController extends ApiController {
    * Remove the specified resource from storage.
    *
    * @param Request $request
-   * @param         $projectId
    * @param         $categoryId
    *
    * @return Response
    * @internal param int $id
    *
    */
-  public function destroy(Request $request, $projectId, $categoryId) {
+  public function destroy(Request $request, $categoryId) {
 
     //TODO you have to make sure you have at least one category for a project
     //TODO what to do with Entries relying on this category ??

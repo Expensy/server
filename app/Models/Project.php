@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
-class Project extends ApiModel {
+class Project extends ApiModel
+{
   use SoftDeletes;
 
   /**
@@ -39,8 +40,6 @@ class Project extends ApiModel {
   public function isAccessibleByConnectedUser() {
     $connectedUserId = Auth::user()->id;
 
-    return $this->users->contains(function ($index, $user) use ($connectedUserId) {
-      return $user->id === $connectedUserId;
-    });
+    return collect($this->users->all())->pluck('id')->contains($connectedUserId);
   }
 }

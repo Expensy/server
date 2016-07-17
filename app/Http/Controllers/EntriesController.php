@@ -47,13 +47,11 @@ class EntriesController extends ApiController {
    * Store a newly created resource in storage.
    *
    * @param Request $request
-   * @param int     $projectId
    *
    * @return Response
    */
-  public function store(Request $request, int $projectId) {
+  public function store(Request $request) {
     $inputs = $request->all();
-    $inputs['project_id'] = $projectId;
 
     $validation = $this->entryRepository->isValidForCreation('App\Models\Entry', $inputs);
 
@@ -71,15 +69,14 @@ class EntriesController extends ApiController {
    * Display the specified resource.
    *
    * @param Request $request
-   * @param         $projectId
-   * @param         $entryId
+   * @param         $id
    *
    * @return Response
    * @internal param int $id
    *
    */
-  public function show(Request $request, $projectId, $entryId) {
-    $entry = $this->entryRepository->find($entryId);
+  public function show(Request $request, $id) {
+    $entry = $this->entryRepository->find($id);
 
     if (!$entry) {
       return $this->respondNotFound('Entry does not exist.');
@@ -93,18 +90,16 @@ class EntriesController extends ApiController {
    * Update the specified resource in storage.
    *
    * @param Request $request
-   * @param         $projectId
-   * @param         $entryId
+   * @param         $id
    *
    * @return Response
    * @internal param int $id
    *
    */
-  public function update(Request $request, $projectId, $entryId) {
-    $entry = $this->entryRepository->find($entryId);
+  public function update(Request $request, $id) {
+    $entry = $this->entryRepository->find($id);
     $inputs = $request->all();
-    $inputs['project_id'] = $projectId;
-    $inputs['id'] = $entryId;
+    $inputs['id'] = $id;
 
     if (!$entry) {
       return $this->respondNotFound('Entry does not exist.');
@@ -115,7 +110,7 @@ class EntriesController extends ApiController {
       return $this->respondFailedValidation($validation->messages);
     }
 
-    $updatedEntry = $this->entryRepository->update($entryId, $inputs);
+    $updatedEntry = $this->entryRepository->update($id, $inputs);
 
     return $this->respond($this->entryTransformer->fullTransform($updatedEntry));
   }
@@ -125,21 +120,20 @@ class EntriesController extends ApiController {
    * Remove the specified resource from storage.
    *
    * @param Request $request
-   * @param         $projectId
-   * @param         $entryId
+   * @param         $id
    *
    * @return Response
    * @internal param int $id
    *
    */
-  public function destroy(Request $request, $projectId, $entryId) {
-    $entry = $this->entryRepository->find($entryId);
+  public function destroy(Request $request, $id) {
+    $entry = $this->entryRepository->find($id);
 
     if (!$entry) {
       return $this->respondNotFound('Entry does not exist.');
     }
 
-    $this->entryRepository->delete($entryId);
+    $this->entryRepository->delete($id);
 
     return $this->respondNoContent();
   }

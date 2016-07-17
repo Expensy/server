@@ -21,7 +21,7 @@ class EntryTransformer extends Transformer {
     return Arrays::merge(
       $this->basicTransform($item),
       [
-        'price' => $item['price'],
+        'price' => (int) $item['price'],
         'date' => $item['date']->toIso8601String(),
         'content' => $item['content'],
         'category' => $this->categoryTransformer->basicTransform($item->category->toArray()),

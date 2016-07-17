@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Enum\Action;
 use BadMethodCallException;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Enum\Action;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Underscore\Types\Arrays;
 
-class ApiModel extends Model {
+class ApiModel extends Model
+{
   /**
    * common rules validation for creation and update
    *
@@ -60,7 +60,10 @@ class ApiModel extends Model {
           foreach ($allMatches as $matches) {
             foreach ($matches as $match) {
               $property = substr($match, 1, count($match) - 2);
-              $rule = str_replace($match, $data[ $property ], $rule);
+              if (!isset($data[$property])) {
+                return false;
+              }
+              $rule = str_replace($match, $data[$property], $rule);
             }
           }
         }
