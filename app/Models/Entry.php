@@ -2,11 +2,18 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Entry extends ApiModel {
+class Entry extends ApiModel
+{
   use softDeletes;
 
+  /**
+   * The attributes that should be mutated to dates.
+   *
+   * @var array
+   */
   protected $dates = ['date'];
 
   /**
@@ -40,5 +47,9 @@ class Entry extends ApiModel {
 
   public function category() {
     return $this->belongsTo('App\Models\Category');
+  }
+
+  public function setDateAttribute($value) {
+    $this->attributes['date'] = Carbon::parse($value);
   }
 }
