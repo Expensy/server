@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\controllers;
+namespace App\Http\Controllers;
 
 use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
