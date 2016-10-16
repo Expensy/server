@@ -18,6 +18,7 @@ class ProjectTransformer extends Transformer
 
   public function extendedTransform($item) {
     return array_merge($this->basicTransform($item), [
+      'currency' => $item['currency'],
       'members' => $this->_getUsers($item),
       'categories' => $this->_getCategories($item),
       'created_at' => $item['created_at']->toIso8601String(),

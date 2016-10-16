@@ -16,13 +16,15 @@ class Project extends ApiModel
    */
   protected $table = 'projects';
 
-  protected $fillable = ['title'];
+  protected $fillable = ['title', 'currency'];
 
   protected $rulesForCreation = [
-    'title' => ['required', 'unique_project_name']
+    'title' => ['required', 'unique_project_name'],
+    'currency' => ['required', 'currency'],
   ];
   protected $rulesForUpdate = [
-    'title' => ['required', 'unique_project_name']
+    'title' => ['required', 'unique_project_name'],
+    'currency' => ['required', 'currency'],
   ];
 
   public function users() {

@@ -16,19 +16,19 @@ class ApiTester extends TestCase
     $this->createConnectedUser();
   }
 
-  protected function getJson($url, array $parameters = [], array $headers = []) {
+  public function getJson($url, array $parameters = [], array $headers = []) {
     return $this->callJson($url, 'GET', $parameters, $headers);
   }
 
-  protected function postJson($url, array $parameters = [], array $headers = []) {
+  public function postJson($url, array $parameters = [], array $headers = []) {
     return $this->callJson($url, 'POST', $parameters, $headers);
   }
 
-  protected function putJson($url, array $parameters = [], array $headers = []) {
+  public function putJson($url, array $parameters = [], array $headers = []) {
     return $this->callJson($url, 'PUT', $parameters, $headers);
   }
 
-  protected function deleteJson($url, array $parameters = [], array $headers = []) {
+  public function deleteJson($url, array $parameters = [], array $headers = []) {
     return $this->callJson($url, 'DELETE', $parameters, $headers);
   }
 
@@ -65,7 +65,7 @@ class ApiTester extends TestCase
     if (!$this->connectedUser) {
       $this->connectedUser = factory(App\Models\User::class)->create(array_merge([
           'email' => 'testing@testing.com',
-          'password' => bcrypt('password'),
+          'password' => bcrypt('password')
       ], $data));
     }
 
