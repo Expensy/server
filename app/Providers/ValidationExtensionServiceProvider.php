@@ -23,11 +23,9 @@ class ValidationExtensionServiceProvider extends ServiceProvider
         return true;
       }
 
-      $isProjectWithName = collect($projects)->contains(function ($project) use ($value) {
+      return !collect($projects)->contains(function ($project) use ($value) {
         return $project->title == $value;
       });
-
-      return $isProjectWithName == false;
     });
 
     Validator::extend('one_default_category', function ($attribute, $value, $parameters) {
@@ -36,17 +34,22 @@ class ValidationExtensionServiceProvider extends ServiceProvider
       }
 
       $project = Project::find($parameters[0]);
-      if (is_null($project)) {
+      $category = Project::find($parameters[0]);
+
+      if (is_null($project) && is_null($category)) {
         return false;
       }
-      $categories = $project->categories->all();
+
+      $categories = !is_null($project) ?
+        $project->categories->all() :
+        $category->project->categories->all();
 
       return collect($categories)->contains(function ($category) use ($parameters) {
         if (isset($parameters[1])) {
           return $category->by_default == true && $category->id != $parameters[1];
         }
 
-        return $category->by_default == false;
+        return $category->by_default == true;
       });
     });
 

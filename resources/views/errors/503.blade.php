@@ -1,47 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Be right back.</title>
+  <title>Be right back.</title>
 
-    <link href="https://fonts.googleapis.com/css?family=Lato:100" rel="stylesheet" type="text/css">
+  <style>
+    html, body {
+      background-color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      font-weight: 300;
+      height: 100vh;
+      margin: 0;
+    }
 
-    <style>
-        html, body {
-            height: 100%;
-        }
+    .flex-center {
+      height: 100vh;
+      align-items: center;
+      display: flex;
+      justify-content: center;
+    }
 
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            color: #B0BEC5;
-            display: table;
-            font-weight: 100;
-            font-family: 'Lato', sans-serif;
-        }
+    .content {
+      text-align: center;
+    }
 
-        .container {
-            text-align: center;
-            display: table-cell;
-            vertical-align: middle;
-        }
-
-        .content {
-            text-align: center;
-            display: inline-block;
-        }
-
-        .title {
-            font-size: 72px;
-            margin-bottom: 40px;
-        }
-    </style>
+    .title {
+      font-size: 24px;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-    <div class="content">
-        <div class="title">Be right back.</div>
-    </div>
+<div class="flex-center">
+  <div class="content">
+    <div class="title">Be right back.</div>
+  </div>
 </div>
 </body>
 </html>

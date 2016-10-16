@@ -58,25 +58,9 @@ class ProjectsController extends ApiController
       return $this->respondFailedValidation($validation->messages);
     }
 
-    DB::beginTransaction();
-
     $createdProject = $this->projectRepository->create($inputs);
-    $createdCategory = $this->categoryRepository->create([
-      'title' => env('DEFAULT_CATEGORY_TITLE', 'Category 1'),
-      'color' => env('DEFAULT_CATEGORY_COLOR', '#419fdb'),
-      'by_default' => true,
-      'project_id' => $createdProject->id
-    ]);
 
-    if (!$createdProject || !$createdCategory) {
-      DB::rollback();
-
-      return $this->respondInternalError();
-    } else {
-      DB::commit();
-
-      return $this->respondCreated($this->projectTransformer->fullTransform($createdProject));
-    }
+    return $this->respondCreated($this->projectTransformer->fullTransform($createdProject));
   }
 
 

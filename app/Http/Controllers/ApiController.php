@@ -10,35 +10,6 @@ class ApiController extends Controller
 {
   protected $statusCode = IlluminateResponse::HTTP_OK;
 
-  public function canConnectedUserEditElement($id) {
-    $user = JWTAuth::parseToken()->toUser();
-
-    return $user->id === $id;
-  }
-
-  public function respondWithPagination(LengthAwarePaginator $items, $data) {
-    $response = array_merge($data, [
-      'paginate' => [
-        'total_count' => $items->total(),
-        'total_pages' => ceil($items->total() / $items->perPage()),
-        'current_page' => $items->currentPage(),
-        'limit' => $items->perPage()
-      ]
-    ]);
-
-    return $this->respond($response);
-  }
-
-  /**
-   * @param       $data    - data to send trough the API
-   * @param array $headers - optional headers for the HTTP Response
-   *
-   * @return \Illuminate\Http\JsonResponse
-   */
-  public function respond($data = [], $headers = []) {
-    return response()->json($data, $this->getStatusCode(), $headers);
-  }
-
   /**
    * @return mixed
    */
@@ -57,10 +28,45 @@ class ApiController extends Controller
     return $this;
   }
 
+  public function canConnectedUserEditElement($id) {
+    $user = JWTAuth::parseToken()->toUser();
+
+    return $user->id === $id;
+  }
+
+  /**
+   * @param       $data    - data to send trough the API
+   * @param array $headers - optional headers for the HTTP Response
+   *
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function respond($data = [], $headers = []) {
+    return response()->json($data, $this->getStatusCode(), $headers);
+  }
+
+  /**
+   * @param LengthAwarePaginator $items
+   * @param                      $data
+   *
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function respondWithPagination(LengthAwarePaginator $items, $data) {
+    $response = array_merge($data, [
+      'paginate' => [
+        'total_count' => $items->total(),
+        'total_pages' => ceil($items->total() / $items->perPage()),
+        'current_page' => $items->currentPage(),
+        'limit' => $items->perPage()
+      ]
+    ]);
+
+    return $this->respond($response);
+  }
+
   /**
    * @param array $data
    *
-   * @return mixed
+   * @return \Illuminate\Http\JsonResponse
    */
   public function respondCreated(Array $data) {
     return $this
@@ -70,7 +76,7 @@ class ApiController extends Controller
 
   /**
    *
-   * @return mixed
+   * @return \Illuminate\Http\JsonResponse
    */
   public function respondNoContent() {
     return $this
@@ -78,6 +84,11 @@ class ApiController extends Controller
       ->respond();
   }
 
+  /**
+   * @param string $message
+   *
+   * @return \Illuminate\Http\JsonResponse
+   */
   public function respondNotFound($message = 'Not Found !') {
     return $this
       ->setStatusCode(IlluminateResponse::HTTP_NOT_FOUND)

@@ -12,7 +12,7 @@ class UserRepository extends BaseRepository
   public function filter(Array $filters) {
     $limit = $this->getLimit($filters);
 
-    return $this->model->with([])->paginate($limit);
+    return $this->model->where('confirmation_token', null)->with([])->paginate($limit);
   }
 
   public function findByEmail($email) {

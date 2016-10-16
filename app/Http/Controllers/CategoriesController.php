@@ -99,6 +99,7 @@ class CategoriesController extends ApiController
     $category = $this->categoryRepository->find($id);
     $inputs = $request->all();
     $inputs['id'] = $id;
+    $inputs['project_id'] = $category->project->id;
 
     if (!$category) {
       return $this->respondNotFound('Category does not exist.');

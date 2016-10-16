@@ -1,0 +1,27 @@
+image: grafikart/gitlab-ci:php7
+
+cache:
+  paths:
+  - vendor/
+
+before_script:
+- composer install
+- cp .env.example .env
+- export APP_ENV=testing
+- php artisan key:generate
+- php artisan config:cache
+
+services:
+- mysql
+
+variables:
+  MYSQL_ROOT_PASSWORD: root
+  MYSQL_DATABASE: homestead
+  MYSQL_USER: homestead
+  MYSQL_PASSWORD: secret
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+
+test:
+  script:
+  - composer test

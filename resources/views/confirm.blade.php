@@ -46,7 +46,7 @@
   <div class="content">
     <div class="title {{ $success ? 'success' : 'error' }}">
       @if ($success)
-        You have correctly confirm your account!
+        You have correctly confirmed your account!
       @else
         The token is not valid anymore.
       @endif
