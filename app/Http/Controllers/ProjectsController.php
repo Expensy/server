@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ProjectRepository;
 use App\Repositories\UserRepository;
 use App\Transformers\ProjectTransformer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProjectsController extends ApiController
 {
@@ -37,6 +36,21 @@ class ProjectsController extends ApiController
    */
   public function index(Request $request) {
     $projects = $this->projectRepository->filter($request->all());
+
+    return $this->respondWithPagination($projects, [
+      'items' => $this->projectTransformer->transformCollection($projects->items())
+    ]);
+  }
+
+  /**
+   * Display a listing of the resource.
+   *
+   * @param Request $request
+   *
+   * @return Response
+   */
+  public function indexArchived(Request $request) {
+    $projects = Project::onlyTrashed()->paginate();
 
     return $this->respondWithPagination($projects, [
       'items' => $this->projectTransformer->transformCollection($projects->items())

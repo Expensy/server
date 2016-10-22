@@ -17,19 +17,48 @@ class ProjectsControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_fetches_projects() {
+  public function it_fetches_active_projects() {
     $connectedUser = $this->connectedUser;
 
-    factory(App\Models\Project::class, 3)
+    $projects = factory(App\Models\Project::class, 3)
       ->create()
       ->each(function ($p) use ($connectedUser) {
         $p->users()->attach($connectedUser->id);
       });
 
+    $projects[2]->delete();
+
     $call = $this->getJson($this->createUrl($this->url));
 
     $this->assertResponseOk();
+    $jsonObj = json_decode($call->response->content());
+    $this->assertCount(2, $jsonObj->items);
+    $call->seeJsonStructure([
+      'items' => [
+        '*' => [
+          'id', 'title', 'currency', 'members', 'categories'
+        ]
+      ],
+      'paginate'
+    ]);
+  }
 
+  /** @test */
+  public function it_fetches_archived_projects() {
+    $connectedUser = $this->connectedUser;
+
+    $projects = factory(App\Models\Project::class, 3)
+      ->create()
+      ->each(function ($p) use ($connectedUser) {
+        $p->users()->attach($connectedUser->id);
+      });
+    $projects[0]->delete();
+
+    $call = $this->getJson($this->createUrl('api/v1/projects/archived'));
+
+    $this->assertResponseOk();
+    $jsonObj = json_decode($call->response->content());
+    $this->assertCount(1, $jsonObj->items);
     $call->seeJsonStructure([
       'items' => [
         '*' => [

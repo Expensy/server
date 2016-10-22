@@ -34,7 +34,6 @@ class CategoriesController extends ApiController
    */
   public function index(Request $request, int $projectId) {
     $filters = array_merge($request->all(), ['project_id' => $projectId]);
-    $filters = array_merge($request->all(), ['project_id' => $projectId]);
     $categories = $this->categoryRepository->filter($filters);
 
     return $this->respondWithPagination($categories, [

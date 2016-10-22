@@ -16,6 +16,7 @@ Route::post('authenticate', 'AuthController@authenticate');
 
 Route::group(['prefix' => 'v1'], function () {
   Route::resource('users', 'UsersController');
+  Route::get('projects/archived', 'ProjectsController@indexArchived');
   Route::resource('projects', 'ProjectsController');
   Route::put('projects/{id}/members/{userId}', 'ProjectsController@addMember');
   Route::delete('projects/{id}/members/{userId}', 'ProjectsController@removeMember');
