@@ -102,7 +102,7 @@ class ApiController extends Controller
    */
   public function respondWithError($message) {
     return $this->respond([
-      'message' => $message,
+      'message' => $message
     ]);
   }
 

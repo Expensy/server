@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Enum\Action;
 use App\Utils\PostValidator;
 use Illuminate\Database\Eloquent\Model;
+use Log;
 
 abstract class BaseRepository
 {
@@ -31,7 +32,7 @@ abstract class BaseRepository
 
       if (count($validationErrors)) {
         $errors = collect($validationErrors)->map(function ($error) {
-          return array_keys($error);
+          return array_map('strtolower', array_keys($error));
         })->all();
       }
     }
