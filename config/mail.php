@@ -133,6 +133,6 @@ return [
 
   'mailgun' => [
     'domain' => env('MAILGUN_DOMAIN'),
-    'secret' => env('MAILGUN_KEY')
+    'secret' => env('MAILGUN_API_KEY')
   ]
 ];
