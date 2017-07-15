@@ -28,7 +28,6 @@ class Handler extends ExceptionHandler
    * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
    *
    * @param  \Exception $exception
-   *
    * @return void
    */
   public function report(Exception $exception) {
@@ -39,8 +38,7 @@ class Handler extends ExceptionHandler
    * Render an exception into an HTTP response.
    *
    * @param  \Illuminate\Http\Request $request
-   * @param  \Exception               $exception
-   *
+   * @param  \Exception $exception
    * @return \Illuminate\Http\Response
    */
   public function render($request, Exception $exception) {
@@ -51,21 +49,19 @@ class Handler extends ExceptionHandler
    * Convert an authentication exception into an unauthenticated response.
    *
    * @param  \Illuminate\Http\Request $request
-   * @param Exception                 $e
-   *
+   * @param  \Illuminate\Auth\AuthenticationException $exception
    * @return \Illuminate\Http\Response
    * @internal param AuthenticationException $exception
-   *
    */
-  protected function unauthenticated($request, Exception $e) {
-    if ($e instanceof TokenExpiredException) {
-      return response()->json(['message' => 'Token expired'], $e->getStatusCode());
-    } else if ($e instanceof TokenInvalidException) {
-      return response()->json(['message' => 'Token invalid'], $e->getStatusCode());
-    } else if ($e instanceof JWTException) {
-      return response()->json(['message' => 'Token absent'], $e->getStatusCode());
+  protected function unauthenticated($request, AuthenticationException $exception) {
+    if ($exception instanceof TokenExpiredException) {
+      return response()->json(['message' => 'Token expired'], $exception->getStatusCode());
+    } else if ($exception instanceof TokenInvalidException) {
+      return response()->json(['message' => 'Token invalid'], $exception->getStatusCode());
+    } else if ($exception instanceof JWTException) {
+      return response()->json(['message' => 'Token absent'], $exception->getStatusCode());
     }
 
-    return parent::render($request, $e);
+    return parent::render($request, $exception);
   }
 }

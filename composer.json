@@ -8,20 +8,20 @@
   "license": "MIT",
   "type": "project",
   "require": {
-    "php": ">=5.6.4",
-    "laravel/framework": "5.3.*",
-    "tymon/jwt-auth": "0.5.*",
-    "barryvdh/laravel-cors": "^0.8.2",
-    "barryvdh/laravel-ide-helper": "^2.2",
-    "doctrine/dbal": "^2.5"
+    "php": "7.1.7",
+    "laravel/framework": "5.4.28",
+    "tymon/jwt-auth": "0.5.12",
+    "barryvdh/laravel-cors": "0.9.2",
+    "barryvdh/laravel-ide-helper": "2.4.0",
+    "doctrine/dbal": "2.5.12"
   },
   "require-dev": {
-    "fzaninotto/faker": "~1.4",
-    "mockery/mockery": "0.9.*",
-    "phpunit/phpunit": "~5.0",
-    "symfony/css-selector": "3.1.*",
-    "symfony/dom-crawler": "3.1.*",
-    "laravel/homestead": "^3.0"
+    "fzaninotto/faker": "1.6.0",
+    "mockery/mockery": "0.9.9",
+    "phpunit/phpunit": "5.7.21",
+    "symfony/css-selector": "3.3.4",
+    "symfony/dom-crawler": "3.3.4",
+    "laravel/homestead": "5.4"
   },
   "autoload": {
     "classmap": [
@@ -32,9 +32,10 @@
     }
   },
   "autoload-dev": {
-    "classmap": [
-      "tests"
-    ]
+    "psr-4": {
+      "Tests\\": "tests/",
+      "Helpers\\": "tests/Helpers"
+    }
   },
   "scripts": {
     "post-root-package-install": [
@@ -53,10 +54,11 @@
       "php artisan ide-helper:generate --helpers",
       "php artisan ide-helper:meta --no-interaction",
       "php artisan optimize"
-    ],
-    "test": "phpunit"
+    ]
   },
   "config": {
-    "preferred-install": "dist"
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "optimize-autoloader": true
   }
 }

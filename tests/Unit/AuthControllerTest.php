@@ -1,7 +1,10 @@
 <?php
 
+namespace Tests\Unit;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Tests\TestCase;
 
 class AuthControllerTest extends TestCase
 {
@@ -17,7 +20,7 @@ class AuthControllerTest extends TestCase
       'password' => bcrypt('password')
     ];
 
-    factory(App\Models\User::class)->create([
+    factory(User::class)->create([
       'email' => $this->credentials['email'],
       'password' => bcrypt($this->credentials['password'])
     ]);
@@ -25,9 +28,9 @@ class AuthControllerTest extends TestCase
 
   /** @test */
   public function it_sets_token() {
-    $call = $this->json('POST', 'api/authenticate', $this->credentials);
+    $response = $this->json('POST', 'api/authenticate', $this->credentials);
 
-    $call->assertResponseOK();
+    $response->assertSuccessful();
   }
 
   /** @test */
@@ -37,6 +40,6 @@ class AuthControllerTest extends TestCase
       'password' => 'secret'
     ]);
 
-    $response->assertResponseStatus(401);
+    $response->assertStatus(401);
   }
 }

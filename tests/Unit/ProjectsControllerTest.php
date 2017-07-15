@@ -1,6 +1,9 @@
 <?php
 
+namespace Tests\Unit;
+
 use App\Models\Project;
+use App\Models\User;
 use Helpers\AuthEnum;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -20,7 +23,7 @@ class ProjectsControllerTest extends ApiTester
   public function it_fetches_active_projects() {
     $connectedUser = $this->connectedUser;
 
-    $projects = factory(App\Models\Project::class, 3)
+    $projects = factory(Project::class, 3)
       ->create()
       ->each(function ($p) use ($connectedUser) {
         $p->users()->attach($connectedUser->id);
@@ -28,12 +31,12 @@ class ProjectsControllerTest extends ApiTester
 
     $projects[2]->delete();
 
-    $call = $this->getJson($this->createUrl($this->url));
+    $response = $this->getJson($this->createUrl($this->url));
 
-    $this->assertResponseOk();
-    $jsonObj = json_decode($call->response->content());
+    $response->assertSuccessful();
+    $jsonObj = json_decode($response->baseResponse->content());
     $this->assertCount(2, $jsonObj->items);
-    $call->seeJsonStructure([
+    $response->assertJsonStructure([
       'items' => [
         '*' => [
           'id', 'title', 'currency', 'members', 'categories'
@@ -47,19 +50,19 @@ class ProjectsControllerTest extends ApiTester
   public function it_fetches_archived_projects() {
     $connectedUser = $this->connectedUser;
 
-    $projects = factory(App\Models\Project::class, 3)
+    $projects = factory(Project::class, 3)
       ->create()
       ->each(function ($p) use ($connectedUser) {
         $p->users()->attach($connectedUser->id);
       });
     $projects[0]->delete();
 
-    $call = $this->getJson($this->createUrl('api/v1/projects/archived'));
+    $response = $this->getJson($this->createUrl('api/v1/projects/archived'));
 
-    $this->assertResponseOk();
-    $jsonObj = json_decode($call->response->content());
+    $response->assertSuccessful();
+    $jsonObj = json_decode($response->baseResponse->content());
     $this->assertCount(1, $jsonObj->items);
-    $call->seeJsonStructure([
+    $response->assertJsonStructure([
       'items' => [
         '*' => [
           'id', 'title', 'currency', 'members', 'categories'
@@ -71,38 +74,38 @@ class ProjectsControllerTest extends ApiTester
 
   /** @test */
   public function it_fetches_projects_400_if_not_authenticated() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::NONE)
       ->getJson($this->createUrl($this->url));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_fetches_projects_400_if_wrong_authentication() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->getJson($this->createUrl($this->url));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
 
   /** @test */
   public function it_fetches_a_single_project() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $call = $this->getJson($this->createUrl($this->url, $project->id));
+    $response = $this->getJson($this->createUrl($this->url, $project->id));
 
-    $this->assertResponseOk();
-    $call->seeJson([
+    $response->assertSuccessful();
+    $response->assertJson([
       'id' => $project->id,
       'title' => $project->title,
       'currency' => $project->currency
@@ -111,57 +114,57 @@ class ProjectsControllerTest extends ApiTester
 
   /** @test */
   public function it_fetches_a_single_project_400_if_not_authenticated() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::NONE)
       ->getJson($this->createUrl($this->url, $project->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_fetches_a_single_project_400_if_wrong_authentication() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->getJson($this->createUrl($this->url, $project->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_fetches_a_single_project_403_if_forbidden() {
-    $user = factory(App\Models\User::class)->create();
-    $project = factory(App\Models\Project::class)->create();
+    $user = factory(User::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($user->id);
 
-    $this->getJson($this->createUrl($this->url, $project->id));
+    $response = $this->getJson($this->createUrl($this->url, $project->id));
 
-    $this->assertResponseStatus(403);
+    $response->assertStatus(403);
   }
 
   /** @test */
   public function it_fetches_a_single_project_404_if_not_found() {
-    $this->getJson($this->createUrl($this->url, 0));
-    $this->assertResponseStatus(404);
+    $response = $this->getJson($this->createUrl($this->url, 0));
+    $response->assertStatus(404);
   }
 
 
   /** @test */
   public function it_creates_a_new_project() {
-    $project = factory(App\Models\Project::class)->make();
+    $project = factory(Project::class)->make();
     $data = $project->toArray();
 
-    $call = $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->url), $data);
 
-    $obj = json_decode($call->response->getContent());
+    $obj = json_decode($response->baseResponse->getContent());
     $categories = Project::find($obj->id)->categories->all();
 
-    $this->assertResponseStatus(201);
+    $response->assertStatus(201);
 
     $this->assertEquals(1, count($categories));
 
@@ -172,73 +175,73 @@ class ProjectsControllerTest extends ApiTester
 
   /** @test */
   public function it_creates_a_new_project_400_if_validation_fails() {
-    $this->postJson($this->createUrl($this->url), []);
+    $response = $this->postJson($this->createUrl($this->url), []);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_creates_a_new_project_400_if_title_already_taken() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this->postJson($this->createUrl($this->url), [
+    $response = $this->postJson($this->createUrl($this->url), [
       'title' => $project->title
     ]);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_creates_a_new_project_400_if_currency_invalid() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this->postJson($this->createUrl($this->url), [
+    $response = $this->postJson($this->createUrl($this->url), [
       'currency' => 'INVALID'
     ]);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_creates_a_new_project_400_if_not_authenticated() {
-    $project = factory(App\Models\Project::class)->make();
+    $project = factory(Project::class)->make();
     $data = $project->toArray();
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::NONE)
       ->postJson($this->createUrl($this->url), $data);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_creates_a_new_project_400_if_wrong_authentication() {
-    $project = factory(App\Models\Project::class)->make();
+    $project = factory(Project::class)->make();
     $data = $project->toArray();
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->postJson($this->createUrl($this->url), $data);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
 
   /** @test */
   public function it_updates_the_project() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $call = $this->putJson($this->createUrl($this->url, $project->id), [
+    $response = $this->putJson($this->createUrl($this->url, $project->id), [
       'id' => $project->id,
       'title' => "New Title",
       'currency' => 'EUR'
     ]);
 
-    $this->assertResponseStatus(200);
-    $call->seeJson([
+    $response->assertStatus(200);
+    $response->assertJson([
       'id' => $project->id,
       'title' => "New Title",
       'currency' => 'EUR'
@@ -247,318 +250,317 @@ class ProjectsControllerTest extends ApiTester
 
   /** @test */
   public function it_updates_the_project_400_if_validation_fails() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this->putJson($this->createUrl($this->url, $project->id), []);
+    $response = $this->putJson($this->createUrl($this->url, $project->id), []);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_updates_the_project_400_if_title_already_taken() {
     $connectedUser = $this->connectedUser;
 
-    $projects = factory(App\Models\Project::class, 2)
+    $projects = factory(Project::class, 2)
       ->create()
       ->each(function ($p) use ($connectedUser) {
         $p->users()->attach($connectedUser->id);
       });
 
-    $this->putJson($this->createUrl($this->url, $projects[0]->id), [
+    $response = $this->putJson($this->createUrl($this->url, $projects[0]->id), [
       'id' => $projects[0]->id,
       'title' => $projects[1]->title
     ]);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_updates_the_project_400_if_currency_invalid() {
     $connectedUser = $this->connectedUser;
 
-    $projects = factory(App\Models\Project::class, 2)
+    $projects = factory(Project::class, 2)
       ->create()
       ->each(function ($p) use ($connectedUser) {
         $p->users()->attach($connectedUser->id);
       });
 
-    $this->putJson($this->createUrl($this->url, $projects[0]->id), [
+    $response = $this->putJson($this->createUrl($this->url, $projects[0]->id), [
       'id' => $projects[0]->id,
       'currency' => 'INVALID'
     ]);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_updates_the_project_400_if_not_authenticated() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::NONE)
       ->putJson($this->createUrl($this->url, $project->id), [
         'id' => $project->id,
         'title' => "New Title"
       ]);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_updates_the_project_400_if_wrong_authentication() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->putJson($this->createUrl($this->url, $project->id), [
         'id' => $project->id,
         'title' => "New Title"
       ]);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_updates_the_project_403_if_forbidden() {
-    $user = factory(App\Models\User::class)->create();
-    $project = factory(App\Models\Project::class)->create();
+    $user = factory(User::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($user->id);
 
-    $this->putJson($this->createUrl($this->url, $project->id), [
+    $response = $this->putJson($this->createUrl($this->url, $project->id), [
       'id' => $project->id,
       'title' => "New title"
     ]);
 
-    $this->assertResponseStatus(403);
+    $response->assertStatus(403);
   }
 
   /** @test */
   public function it_updates_the_project_404_if_not_found() {
-    $this->putJson($this->createUrl($this->url, 0), [
+    $response = $this->putJson($this->createUrl($this->url, 0), [
       'id' => 0,
       'title' => "New title"
     ]);
 
-    $this->assertResponseStatus(404);
+    $response->assertStatus(404);
   }
 
 
   /** @test */
   public function it_deletes_a_project() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this->deleteJson($this->createUrl($this->url, $project->id));
+    $response = $this->deleteJson($this->createUrl($this->url, $project->id));
 
-    $this->assertResponseStatus(204);
+    $response->assertStatus(204);
   }
 
   /** @test */
   public function it_deletes_the_project_400_if_not_authenticated() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::NONE)
       ->deleteJson($this->createUrl($this->url, $project->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_deletes_the_project_400_if_wrong_authentication() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->deleteJson($this->createUrl($this->url, $project->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_deletes_a_project_403_if_forbidden() {
-    $user = factory(App\Models\User::class)->create();
-    $project = factory(App\Models\Project::class)->create();
+    $user = factory(User::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($user->id);
 
-    $this->deleteJson($this->createUrl($this->url, $project->id));
+    $response = $this->deleteJson($this->createUrl($this->url, $project->id));
 
-    $this->assertResponseStatus(403);
+    $response->assertStatus(403);
   }
 
   /** @test */
   public function it_deletes_a_project_404_if_not_found() {
-    $this->deleteJson($this->createUrl($this->url, 0));
+    $response = $this->deleteJson($this->createUrl($this->url, 0));
 
-    $this->assertResponseStatus(404);
+    $response->assertStatus(404);
   }
 
 
   /** @test */
   public function it_adds_member() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $user = factory(App\Models\User::class)->create();
+    $user = factory(User::class)->create();
 
-    $this->putJson($this->createUrl($this->membersUrl, $project->id, $user->id));
+    $response = $this->putJson($this->createUrl($this->membersUrl, $project->id, $user->id));
 
-    $this->assertResponseStatus(200);
+    $response->assertStatus(200);
   }
 
   /** @test */
   public function it_adds_member_400_if_already_added() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $user = factory(App\Models\User::class)->create();
+    $user = factory(User::class)->create();
     $project->users()->attach($user->id);
 
-    $this->putJson($this->createUrl($this->membersUrl, $project->id, $user->id));
+    $response = $this->putJson($this->createUrl($this->membersUrl, $project->id, $user->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
 
   /** @test */
   public function it_adds_member_400_if_not_authenticated() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $user = factory(App\Models\User::class)->create();
+    $user = factory(User::class)->create();
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::NONE)
       ->putJson($this->createUrl($this->membersUrl, $project->id, $user->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_adds_member_400_if_wrong_authentication() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $user = factory(App\Models\User::class)->create();
+    $user = factory(User::class)->create();
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->putJson($this->createUrl($this->membersUrl, $project->id, $user->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_adds_member_403_if_forbidden() {
-    $user1 = factory(App\Models\User::class)->create();
-    $project = factory(App\Models\Project::class)->create();
+    $user1 = factory(User::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($user1->id);
 
-    $user2 = factory(App\Models\User::class)->create();
+    $user2 = factory(User::class)->create();
 
-    $this->putJson($this->createUrl($this->membersUrl, $project->id, $user2->id));
+    $response = $this->putJson($this->createUrl($this->membersUrl, $project->id, $user2->id));
 
-    $this->assertResponseStatus(403);
+    $response->assertStatus(403);
   }
 
   /** @test */
   public function it_adds_member_404_if_project_not_found() {
-    $user = factory(App\Models\User::class)->create();
+    $user = factory(User::class)->create();
 
-    $this->putJson($this->createUrl($this->membersUrl, 0, $user->id));
+    $response = $this->putJson($this->createUrl($this->membersUrl, 0, $user->id));
 
-    $this->assertResponseStatus(404);
+    $response->assertStatus(404);
   }
 
   /** @test */
   public function it_adds_member_404_if_user_not_found() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $this->putJson($this->createUrl($this->membersUrl, $project->id, 0));
+    $response = $this->putJson($this->createUrl($this->membersUrl, $project->id, 0));
 
-    $this->assertResponseStatus(404);
+    $response->assertStatus(404);
   }
 
 
   /** @test */
   public function it_deletes_member() {
-    $user = factory(App\Models\User::class)->create();
+    $user = factory(User::class)->create();
 
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
     $project->users()->attach($user->id);
 
-    $this->deleteJson($this->createUrl($this->membersUrl, $project->id, $user->id));
+    $response = $this->deleteJson($this->createUrl($this->membersUrl, $project->id, $user->id));
 
-    $this->assertResponseStatus(200);
+    $response->assertStatus(200);
   }
 
   /** @test */
   public function it_deletes_member_400_if_not_authenticated() {
-    $user = factory(App\Models\User::class)->create();
+    $user = factory(User::class)->create();
 
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
     $project->users()->attach($user->id);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::NONE)
       ->deleteJson($this->createUrl($this->membersUrl, $project->id, $user->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_deletes_member_400_if_wrong_authentication() {
-    $user = factory(App\Models\User::class)->create();
+    $user = factory(User::class)->create();
 
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
     $project->users()->attach($user->id);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->deleteJson($this->createUrl($this->membersUrl, $project->id, $user->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_deletes_member_403_if_forbidden() {
-    $user1 = factory(App\Models\User::class)->create();
-    $user2 = factory(App\Models\User::class)->create();
+    $user1 = factory(User::class)->create();
+    $user2 = factory(User::class)->create();
 
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($user1->id);
     $project->users()->attach($user2->id);
 
-    $this->deleteJson($this->createUrl($this->membersUrl, $project->id, $user2->id));
+    $response = $this->deleteJson($this->createUrl($this->membersUrl, $project->id, $user2->id));
 
-    $this->assertResponseStatus(403);
+    $response->assertStatus(403);
   }
 
   /** @test */
   public function it_deletes_member_404_if_project_not_found() {
-    $user = factory(App\Models\User::class)->create();
+    $user = factory(User::class)->create();
 
-    $this->deleteJson($this->createUrl($this->membersUrl, 0, $user->id));
+    $response = $this->deleteJson($this->createUrl($this->membersUrl, 0, $user->id));
 
-    $this->assertResponseStatus(404);
+    $response->assertStatus(404);
   }
 
   /** @test */
   public function it_deletes_member_404_if_user_not_found() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this->deleteJson($this->createUrl($this->membersUrl, $project->id, 0));
+    $response = $this->deleteJson($this->createUrl($this->membersUrl, $project->id, 0));
 
-    $this->assertResponseStatus(404);
+    $response->assertStatus(404);
   }
-
 }

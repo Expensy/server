@@ -1,5 +1,10 @@
 <?php
 
+namespace Tests\Unit;
+
+use App\Models\Category;
+use App\Models\Project;
+use App\Models\User;
 use Helpers\AuthEnum;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -17,17 +22,17 @@ class CategoriesControllerTest extends ApiTester
 
   /** @test */
   public function it_fetches_categories() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    factory(App\Models\Category::class, 3)->create([
+    factory(Category::class, 3)->create([
       'project_id' => $project->id
     ]);
 
-    $call = $this->getJson($this->createUrl($this->indexUrl, $project->id));
+    $response = $this->getJson($this->createUrl($this->indexUrl, $project->id));
 
-    $this->assertResponseOk();
+    $response->assertSuccessful();
 
-    $call->seeJsonStructure([
+    $response->assertJsonStructure([
       'items' => [
         '*' => [
           'id', 'title', 'color'
@@ -39,62 +44,62 @@ class CategoriesControllerTest extends ApiTester
 
   /** @test */
   public function it_fetches_categories_400_if_not_authenticated() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    factory(App\Models\Category::class, 3)->create([
+    factory(Category::class, 3)->create([
       'project_id' => $project->id
     ]);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::NONE)
       ->getJson($this->createUrl($this->indexUrl, $project->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_fetches_categories_400_if_wrong_authentication() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    factory(App\Models\Category::class, 3)->create([
+    factory(Category::class, 3)->create([
       'project_id' => $project->id
     ]);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->getJson($this->createUrl($this->indexUrl, $project->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_fetches_categories_404_if_category_not_found() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    factory(App\Models\Category::class, 3)->create([
+    factory(Category::class, 3)->create([
       'project_id' => $project->id
     ]);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->getJson($this->createUrl($this->indexUrl, 0));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
 
   /** @test */
   public function it_fetches_a_single_category() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
+    $category = factory(Category::class)->create([
       'project_id' => $project->id
     ]);
 
-    $call = $this->getJson($this->createUrl($this->url, $category->id));
+    $response = $this->getJson($this->createUrl($this->url, $category->id));
 
-    $this->assertResponseOk();
-    $call->seeJson([
+    $response->assertSuccessful();
+    $response->assertJson([
       'id' => $category->id,
       'title' => $category->title,
       'color' => $category->color
@@ -103,223 +108,223 @@ class CategoriesControllerTest extends ApiTester
 
   /** @test */
   public function it_fetches_a_single_category_400_if_not_authenticated() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
+    $category = factory(Category::class)->create([
       'project_id' => $project->id
     ]);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::NONE)
       ->getJson($this->createUrl($this->url, $category->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_fetches_a_single_category_400_if_wrong_authentication() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
+    $category = factory(Category::class)->create([
       'project_id' => $project->id
     ]);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->getJson($this->createUrl($this->url, $category->id));
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_fetches_a_single_category_403_if_forbidden() {
-    $user = factory(App\Models\User::class)->create();
-    $project = factory(App\Models\Project::class)->create();
+    $user = factory(User::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($user->id);
-    $category = factory(App\Models\Category::class)->create([
+    $category = factory(Category::class)->create([
       'project_id' => $project->id
     ]);
 
-    $this->getJson($this->createUrl($this->url, $category->id));
+    $response = $this->getJson($this->createUrl($this->url, $category->id));
 
-    $this->assertResponseStatus(403);
+    $response->assertStatus(403);
   }
 
   /** @test */
   public function it_fetches_a_single_category_404_category_if_not_found() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this->getJson($this->createUrl($this->url, 0));
-    $this->assertResponseStatus(404);
+    $response = $this->getJson($this->createUrl($this->url, 0));
+    $response->assertStatus(404);
   }
 
 
   /** @test */
   public function it_creates_a_new_category() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->make([
+    $category = factory(Category::class)->make([
       'project_id' => $project->id
     ]);
     $data = $category->toArray();
 
-    $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->url), $data);
 
-    $this->assertResponseStatus(201);
+    $response->assertStatus(201);
   }
 
   /** @test */
   public function it_creates_a_new_category_v2() {
-    $project1 = factory(App\Models\Project::class)->create();
+    $project1 = factory(Project::class)->create();
     $project1->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
+    $category = factory(Category::class)->create([
       'project_id' => $project1->id
     ]);
 
-    $project2 = factory(App\Models\Project::class)->create();
+    $project2 = factory(Project::class)->create();
     $project2->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->make([
+    $category = factory(Category::class)->make([
       'title' => $category->title,
       'project_id' => $project2->id
     ]);
 
     $data = $category->toArray();
-    $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->url), $data);
 
-    $this->assertResponseStatus(201);
+    $response->assertStatus(201);
   }
 
   /** @test */
   public function it_creates_a_new_category_400_if_validation_fails() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this->postJson($this->createUrl($this->url), []);
+    $response = $this->postJson($this->createUrl($this->url), []);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_creates_a_new_category_400_if_title_already_taken() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $category1 = factory(App\Models\Category::class)->create([
+    $category1 = factory(Category::class)->create([
       'project_id' => $project->id
     ]);
 
-    $category2 = factory(App\Models\Category::class)->make([
+    $category2 = factory(Category::class)->make([
       'title' => $category1->title,
       'project_id' => $project->id
     ]);
 
     $data = $category2->toArray();
-    $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->url), $data);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_creates_a_new_category_400_if_color_not_hexadecimal() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->make([
+    $category = factory(Category::class)->make([
       'color' => '123456',
       'project_id' => $project->id
     ]);
     $data = $category->toArray();
 
-    $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->url), $data);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
 
   /** @test */
   public function it_creates_a_new_category_400_if_not_authenticated() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->make([
+    $category = factory(Category::class)->make([
       'project_id' => $project->id
     ]);
     $data = $category->toArray();
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::NONE)
       ->postJson($this->createUrl($this->url), $data);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_creates_a_new_category_400_if_wrong_authentication() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->make([
+    $category = factory(Category::class)->make([
       'project_id' => $project->id
     ]);
     $data = $category->toArray();
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->postJson($this->createUrl($this->url), $data);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_creates_a_new_category_403_if_forbidden() {
-    $user = factory(App\Models\User::class)->create();
-    $project = factory(App\Models\Project::class)->create();
+    $user = factory(User::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($user->id);
 
-    $category = factory(App\Models\Category::class)->make([
+    $category = factory(Category::class)->make([
       'project_id' => $project->id
     ]);
     $data = $category->toArray();
 
-    $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->url), $data);
 
-    $this->assertResponseStatus(403);
+    $response->assertStatus(403);
   }
 
   /** @test */
   public function it_creates_a_new_category_404_if_not_found() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(App\Models\Category::class)->make([
+    $category = factory(Category::class)->make([
       'project_id' => 0
     ]);
     $data = $category->toArray();
 
-    $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->url), $data);
 
-    $this->assertResponseStatus(404);
+    $response->assertStatus(404);
   }
 
 
   /** @test */
   public function it_updates_the_category() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
+    $category = factory(Category::class)->create([
       'project_id' => $project->id
     ]);
 
-    $call = $this->putJson($this->createUrl($this->url, $category->id), [
+    $response = $this->putJson($this->createUrl($this->url, $category->id), [
       'id' => $category->id,
       'title' => 'New Title',
       'color' => '#ffffff',
       'project_id' => $project->id
     ]);
 
-    $this->assertResponseStatus(200);
-    $call->seeJson([
+    $response->assertStatus(200);
+    $response->assertJson([
       'id' => $category->id,
       'title' => 'New Title',
       'color' => '#ffffff'
@@ -328,122 +333,122 @@ class CategoriesControllerTest extends ApiTester
 
   /** @test */
   public function it_updates_the_category_400_if_validation_fails() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
+    $category = factory(Category::class)->create([
       'project_id' => $project->id
     ]);
 
-    $this->putJson($this->createUrl($this->url, $category->id), []);
+    $response = $this->putJson($this->createUrl($this->url, $category->id), []);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_updates_the_category_400_if_not_authenticated() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
+    $category = factory(Category::class)->create([
       'project_id' => $project->id
     ]);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::NONE)
       ->putJson($this->createUrl($this->url, $category->id), [
         'id' => $category->id,
         'title' => 'New Title'
       ]);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_updates_the_category_400_if_wrong_authentication() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
+    $category = factory(Category::class)->create([
       'project_id' => $project->id
     ]);
 
-    $this
+    $response = $this
       ->setAuthentication(AuthEnum::WRONG)
       ->putJson($this->createUrl($this->url, $category->id), [
         'id' => $category->id,
         'title' => 'New Title'
       ]);
 
-    $this->assertResponseStatus(400);
+    $response->assertStatus(400);
   }
 
   /** @test */
   public function it_updates_the_category_403_if_forbidden() {
-    $user = factory(App\Models\User::class)->create();
-    $project = factory(App\Models\Project::class)->create();
+    $user = factory(User::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($user->id);
-    $category = factory(App\Models\Category::class)->create([
+    $category = factory(Category::class)->create([
       'project_id' => $project->id
     ]);
 
-    $this->putJson($this->createUrl($this->url, $category->id), [
+    $response = $this->putJson($this->createUrl($this->url, $category->id), [
       'id' => $category->id,
       'title' => 'New title',
       'project_id' => $project->id
     ]);
 
-    $this->assertResponseStatus(403);
+    $response->assertStatus(403);
   }
 
   /** @test */
   public function it_updates_the_category_404_if_project_not_found() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
-    $category = factory(App\Models\Category::class)->create([
+    $category = factory(Category::class)->create([
       'project_id' => $project->id
     ]);
 
-    $this->putJson($this->createUrl($this->url, $category->id), [
+    $response = $this->putJson($this->createUrl($this->url, $category->id), [
       'id' => 0,
       'title' => 'New title',
       'project_id' => 0
     ]);
 
-    $this->assertResponseStatus(404);
+    $response->assertStatus(404);
   }
 
   /** @test */
   public function it_updates_the_category_404_if_category_not_found() {
-    $project = factory(App\Models\Project::class)->create();
+    $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $this->putJson($this->createUrl($this->url, $project->id, 0), [
+    $response = $this->putJson($this->createUrl($this->url, $project->id, 0), [
       'id' => 0,
       'title' => 'New title'
     ]);
 
-    $this->assertResponseStatus(404);
+    $response->assertStatus(404);
   }
 
 
   //  /** @test */
   //  public function it_deletes_a_category()
   //  {
-  //    $project = factory(App\Models\Project::class)->create();
+  //    $project = factory(Project::class)->create();
   //    $project->users()->attach($this->connectedUser->id);
-  //    $category = factory(App\Models\Category::class)->create([
+  //    $category = factory(Category::class)->create([
   //        'project_id' => $project->id
   //    ]);
   //
   //    $this->deleteJson($this->createUrl($this->url, $project->id, $category->id));
   //
-  //    $this->assertResponseStatus(204);
+  //    $response->assertStatus(204);
   //  }
   //
   //  /** @test */
   //  public function it_deletes_the_category_400_if_not_authenticated()
   //  {
-  //    $project = factory(App\Models\Project::class)->create();
+  //    $project = factory(Project::class)->create();
   //    $project->users()->attach($this->connectedUser->id);
-  //    $category = factory(App\Models\Category::class)->create([
+  //    $category = factory(Category::class)->create([
   //        'project_id' => $project->id
   //    ]);
   //
@@ -452,15 +457,15 @@ class CategoriesControllerTest extends ApiTester
   //        ->deleteJson($this->createUrl($this->url, $project->id, $category->id));
   //
   //
-  //    $this->assertResponseStatus(400);
+  //    $response->assertStatus(400);
   //  }
   //
   //  /** @test */
   //  public function it_deletes_the_category_400_if_wrong_authentication()
   //  {
-  //    $project = factory(App\Models\Project::class)->create();
+  //    $project = factory(Project::class)->create();
   //    $project->users()->attach($this->connectedUser->id);
-  //    $category = factory(App\Models\Category::class)->create([
+  //    $category = factory(Category::class)->create([
   //        'project_id' => $project->id
   //    ]);
   //
@@ -468,46 +473,46 @@ class CategoriesControllerTest extends ApiTester
   //        ->setAuthentication(AuthEnum::WRONG)
   //        ->deleteJson($this->createUrl($this->url, $project->id, $category->id));
   //
-  //    $this->assertResponseStatus(400);
+  //    $response->assertStatus(400);
   //  }
   //
   //  /** @test */
   //  public function it_deletes_a_category_403_if_forbidden()
   //  {
-  //    $user = factory(App\Models\User::class)->create();
-  //    $project = factory(App\Models\Project::class)->create();
+  //    $user = factory(User::class)->create();
+  //    $project = factory(Project::class)->create();
   //    $project->users()->attach($user->id);
-  //    $category = factory(App\Models\Category::class)->create([
+  //    $category = factory(Category::class)->create([
   //        'project_id' => $project->id
   //    ]);
   //
   //    $this->deleteJson($this->createUrl($this->url, $project->id, $category->id));
   //
-  //    $this->assertResponseStatus(403);
+  //    $response->assertStatus(403);
   //  }
   //
   //  /** @test */
   //  public function it_deletes_a_category_404_if_project_not_found()
   //  {
-  //    $project = factory(App\Models\Project::class)->create();
+  //    $project = factory(Project::class)->create();
   //    $project->users()->attach($this->connectedUser->id);
-  //    $category = factory(App\Models\Category::class)->create([
+  //    $category = factory(Category::class)->create([
   //        'project_id' => $project->id
   //    ]);
   //
   //    $this->deleteJson($this->createUrl($this->url, 0, $category->id));
   //
-  //    $this->assertResponseStatus(404);
+  //    $response->assertStatus(404);
   //  }
   //
   //  /** @test */
   //  public function it_deletes_a_category_404_if_category_not_found()
   //  {
-  //    $project = factory(App\Models\Project::class)->create();
+  //    $project = factory(Project::class)->create();
   //    $project->users()->attach($this->connectedUser->id);
   //
   //    $this->deleteJson($this->createUrl($this->url, $project->id, 0));
   //
-  //    $this->assertResponseStatus(404);
+  //    $response->assertStatus(404);
   //  }
 }

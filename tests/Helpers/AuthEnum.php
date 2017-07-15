@@ -2,7 +2,6 @@
 
 namespace Helpers;
 
-
 use App\Models\Enum\BasicEnum;
 
 class AuthEnum extends BasicEnum

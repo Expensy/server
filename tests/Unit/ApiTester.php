@@ -1,6 +1,11 @@
 <?php
 
+namespace Tests\Unit;
+
+use App\Models\User;
 use Helpers\AuthEnum;
+use Illuminate\Support\Facades\Artisan;
+use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ApiTester extends TestCase
@@ -47,7 +52,7 @@ class ApiTester extends TestCase
       default :
         $this->createConnectedUser();
         $token = $this->authenticate();
-        $authHeaders = ['Authorization' => 'Bearer '.$token];
+        $authHeaders = ['Authorization' => 'Bearer ' . $token];
         break;
     }
 
@@ -58,14 +63,13 @@ class ApiTester extends TestCase
    * Creates a User into the database
    *
    * @param array $data
-   *
-   * @return static
+   * @return User
    */
-  protected function createConnectedUser(array $data = []) {
+  protected function createConnectedUser(array $data = []): User {
     if (!$this->connectedUser) {
-      $this->connectedUser = factory(App\Models\User::class)->create(array_merge([
-          'email' => 'testing@testing.com',
-          'password' => bcrypt('password')
+      $this->connectedUser = factory(User::class)->create(array_merge([
+        'email' => 'testing@testing.com',
+        'password' => bcrypt('password')
       ], $data));
     }
 
@@ -80,7 +84,7 @@ class ApiTester extends TestCase
 
   /**
    * Creates a User into the database and automatically log in
-   * @return static
+   * @return string
    */
   protected function authenticate() {
     return JWTAuth::fromUser($this->connectedUser);
