@@ -2,6 +2,8 @@
 
 namespace Helpers;
 
+use BadMethodCallException;
+
 trait Factory
 {
   protected function times($int) {

@@ -7,6 +7,5 @@
 _ide_helper.php
 after.sh
 aliases
-composer.lock
 Homestead.yaml
 Vagrantfile
