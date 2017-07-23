@@ -31,7 +31,7 @@ class EntriesController extends ApiController
    * Display a listing of the resource.
    *
    * @param Request $request
-   * @param int     $projectId
+   * @param int $projectId
    *
    * @return Response
    */
@@ -48,11 +48,12 @@ class EntriesController extends ApiController
    * Store a newly created resource in storage.
    *
    * @param Request $request
-   *
+   * @param int $projectId
    * @return Response
    */
-  public function store(Request $request) {
+  public function store(Request $request, int $projectId) {
     $inputs = $request->all();
+    $inputs['project_id'] = $projectId;
 
     $validation = $this->entryRepository->isValidForCreation('App\Models\Entry', $inputs);
 
@@ -101,6 +102,7 @@ class EntriesController extends ApiController
     $entry = $this->entryRepository->find($id);
     $inputs = $request->all();
     $inputs['id'] = $id;
+    $inputs['project_id'] = $entry->project->id;
 
     if (!$entry) {
       return $this->respondNotFound('Entry does not exist.');

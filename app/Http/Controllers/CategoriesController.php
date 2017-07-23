@@ -28,7 +28,7 @@ class CategoriesController extends ApiController
    * Display a listing of the resource.
    *
    * @param Request $request
-   * @param int     $projectId
+   * @param int $projectId
    *
    * @return Response
    */
@@ -45,11 +45,12 @@ class CategoriesController extends ApiController
    * Store a newly created resource in storage.
    *
    * @param Request $request
-   *
+   * @param int $projectId
    * @return Response
    */
-  public function store(Request $request) {
+  public function store(Request $request, int $projectId) {
     $inputs = $request->all();
+    $inputs['project_id'] = $projectId;
 
     $validation = $this->categoryRepository->isValidForCreation('App\Models\Category', $inputs);
 

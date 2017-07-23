@@ -20,14 +20,13 @@ Route::group(['prefix' => 'v1'], function () {
   Route::delete('projects/{id}/members/{userId}', 'ProjectsController@removeMember');
 
   Route::get('projects/{projectId}/categories', 'CategoriesController@index');
+  Route::post('projects/{projectId}/categories', 'CategoriesController@store');
   Route::get('categories/{id}', 'CategoriesController@show');
-  Route::post('categories', 'CategoriesController@store');
   Route::put('categories/{id}', 'CategoriesController@update');
-  Route::resource('projects.entries', 'EntriesController');
 
   Route::get('projects/{projectId}/entries', 'EntriesController@index');
+  Route::post('projects/{projectId}/entries', 'EntriesController@store');
   Route::get('entries/{id}', 'EntriesController@show');
-  Route::post('entries', 'EntriesController@store');
   Route::put('entries/{id}', 'EntriesController@update');
   Route::delete('entries/{id}', 'EntriesController@destroy');
 });

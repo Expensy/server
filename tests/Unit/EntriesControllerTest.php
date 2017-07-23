@@ -219,12 +219,11 @@ class EntriesControllerTest extends ApiTester
     ]);
 
     $entry = factory(Entry::class)->make([
-      'category_id' => $category->id,
-      'project_id' => $project->id
+      'category_id' => $category->id
     ]);
     $data = $entry->toArray();
 
-    $response = $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->indexUrl, $project->id), $data);
 
     $response->assertStatus(201);
   }
@@ -235,12 +234,11 @@ class EntriesControllerTest extends ApiTester
     $project->users()->attach($this->connectedUser->id);
 
     $entry = factory(Entry::class)->make([
-      'category_id' => 0,
-      'project_id' => $project->id
+      'category_id' => 0
     ]);
     $data = $entry->toArray();
 
-    $response = $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->indexUrl, $project->id), $data);
 
     $response->assertStatus(400);
   }
@@ -250,7 +248,7 @@ class EntriesControllerTest extends ApiTester
     $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $response = $this->postJson($this->createUrl($this->url), []);
+    $response = $this->postJson($this->createUrl($this->indexUrl, $project->id), []);
 
     $response->assertStatus(400);
   }
@@ -265,14 +263,13 @@ class EntriesControllerTest extends ApiTester
     ]);
 
     $entry = factory(Entry::class)->make([
-      'category_id' => $category->id,
-      'project_id' => $project->id
+      'category_id' => $category->id
     ]);
     $data = $entry->toArray();
 
     $response = $this
       ->setAuthentication(AuthEnum::NONE)
-      ->postJson($this->createUrl($this->url), $data);
+      ->postJson($this->createUrl($this->indexUrl, $project->id), $data);
 
     $response->assertStatus(400);
   }
@@ -287,14 +284,13 @@ class EntriesControllerTest extends ApiTester
     ]);
 
     $entry = factory(Entry::class)->make([
-      'category_id' => $category->id,
-      'project_id' => $project->id
+      'category_id' => $category->id
     ]);
     $data = $entry->toArray();
 
     $response = $this
       ->setAuthentication(AuthEnum::WRONG)
-      ->postJson($this->createUrl($this->url), $data);
+      ->postJson($this->createUrl($this->indexUrl, $project->id), $data);
 
     $response->assertStatus(400);
   }
@@ -310,12 +306,11 @@ class EntriesControllerTest extends ApiTester
     ]);
 
     $entry = factory(Entry::class)->make([
-      'category_id' => $category->id,
-      'project_id' => $project->id
+      'category_id' => $category->id
     ]);
     $data = $entry->toArray();
 
-    $response = $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->indexUrl, $project->id), $data);
 
     $response->assertStatus(403);
   }
@@ -330,13 +325,11 @@ class EntriesControllerTest extends ApiTester
     ]);
 
     $entry = factory(Entry::class)->make([
-      'category_id' => $category->id,
-      'project_id' => 0
-
+      'category_id' => $category->id
     ]);
     $data = $entry->toArray();
 
-    $response = $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->indexUrl, 0), $data);
 
     $response->assertStatus(404);
   }
@@ -361,8 +354,7 @@ class EntriesControllerTest extends ApiTester
       'title' => 'New Title',
       'price' => $entry->price,
       'date' => $entry->date->toDateTimeString(),
-      'category_id' => $entry->category->id,
-      'project_id' => $project->id
+      'category_id' => $entry->category->id
     ]);
 
     $response->assertStatus(200);
@@ -409,8 +401,7 @@ class EntriesControllerTest extends ApiTester
       'title' => 'New Title',
       'price' => $entry->price,
       'date' => $entry->date->toDateTimeString(),
-      'category_id' => 0,
-      'project_id' => $project->id
+      'category_id' => 0
     ]);
 
     $response->assertStatus(400);
@@ -435,8 +426,7 @@ class EntriesControllerTest extends ApiTester
       ->putJson($this->createUrl($this->url, $entry->id), [
         'id' => $entry->id,
         'title' => 'New Title',
-        'category_id' => $category->id,
-        'project_id' => $project->id
+        'category_id' => $category->id
       ]);
 
     $response->assertStatus(400);
@@ -461,8 +451,7 @@ class EntriesControllerTest extends ApiTester
       ->putJson($this->createUrl($this->url, $entry->id), [
         'id' => $entry->id,
         'title' => 'New Title',
-        'category_id' => $category->id,
-        'project_id' => $project->id
+        'category_id' => $category->id
       ]);
 
     $response->assertStatus(400);
@@ -492,37 +481,13 @@ class EntriesControllerTest extends ApiTester
   }
 
   /** @test */
-  public function it_updates_the_entry_404_if_project_not_found() {
-    $project = factory(Project::class)->create();
-    $project->users()->attach($this->connectedUser->id);
-
-    $category = factory(Category::class)->create([
-      'project_id' => $project->id
-    ]);
-
-    $entry = factory(Entry::class)->create([
-      'category_id' => $category->id,
-      'project_id' => $project->id
-    ]);
-
-    $response = $this->putJson($this->createUrl($this->url, $entry->id), [
-      'id' => 0,
-      'title' => 'New title',
-      'project_id' => 0
-    ]);
-
-    $response->assertStatus(404);
-  }
-
-  /** @test */
   public function it_updates_the_entry_404_if_entry_not_found() {
     $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
     $response = $this->putJson($this->createUrl($this->url, 0), [
       'id' => 0,
-      'title' => 'New title',
-      'project_id' => $project->id
+      'title' => 'New title'
     ]);
 
     $response->assertStatus(404);

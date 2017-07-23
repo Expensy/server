@@ -165,12 +165,10 @@ class CategoriesControllerTest extends ApiTester
     $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(Category::class)->make([
-      'project_id' => $project->id
-    ]);
+    $category = factory(Category::class)->make();
     $data = $category->toArray();
 
-    $response = $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->indexUrl, $project->id), $data);
 
     $response->assertStatus(201);
   }
@@ -186,12 +184,11 @@ class CategoriesControllerTest extends ApiTester
     $project2 = factory(Project::class)->create();
     $project2->users()->attach($this->connectedUser->id);
     $category = factory(Category::class)->make([
-      'title' => $category->title,
-      'project_id' => $project2->id
+      'title' => $category->title
     ]);
 
     $data = $category->toArray();
-    $response = $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->indexUrl, $project2->id), $data);
 
     $response->assertStatus(201);
   }
@@ -201,7 +198,7 @@ class CategoriesControllerTest extends ApiTester
     $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $response = $this->postJson($this->createUrl($this->url), []);
+    $response = $this->postJson($this->createUrl($this->indexUrl, $project->id), []);
 
     $response->assertStatus(400);
   }
@@ -215,12 +212,11 @@ class CategoriesControllerTest extends ApiTester
     ]);
 
     $category2 = factory(Category::class)->make([
-      'title' => $category1->title,
-      'project_id' => $project->id
+      'title' => $category1->title
     ]);
 
     $data = $category2->toArray();
-    $response = $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->indexUrl, $project->id), $data);
 
     $response->assertStatus(400);
   }
@@ -231,12 +227,11 @@ class CategoriesControllerTest extends ApiTester
     $project->users()->attach($this->connectedUser->id);
 
     $category = factory(Category::class)->make([
-      'color' => '123456',
-      'project_id' => $project->id
+      'color' => '123456'
     ]);
     $data = $category->toArray();
 
-    $response = $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->indexUrl, $project->id), $data);
 
     $response->assertStatus(400);
   }
@@ -247,14 +242,12 @@ class CategoriesControllerTest extends ApiTester
     $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(Category::class)->make([
-      'project_id' => $project->id
-    ]);
+    $category = factory(Category::class)->make();
     $data = $category->toArray();
 
     $response = $this
       ->setAuthentication(AuthEnum::NONE)
-      ->postJson($this->createUrl($this->url), $data);
+      ->postJson($this->createUrl($this->indexUrl, $project->id), $data);
 
     $response->assertStatus(400);
   }
@@ -264,14 +257,12 @@ class CategoriesControllerTest extends ApiTester
     $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(Category::class)->make([
-      'project_id' => $project->id
-    ]);
+    $category = factory(Category::class)->make();
     $data = $category->toArray();
 
     $response = $this
       ->setAuthentication(AuthEnum::WRONG)
-      ->postJson($this->createUrl($this->url), $data);
+      ->postJson($this->createUrl($this->indexUrl, $project->id), $data);
 
     $response->assertStatus(400);
   }
@@ -282,12 +273,10 @@ class CategoriesControllerTest extends ApiTester
     $project = factory(Project::class)->create();
     $project->users()->attach($user->id);
 
-    $category = factory(Category::class)->make([
-      'project_id' => $project->id
-    ]);
+    $category = factory(Category::class)->make();
     $data = $category->toArray();
 
-    $response = $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->indexUrl, $project->id), $data);
 
     $response->assertStatus(403);
   }
@@ -297,12 +286,10 @@ class CategoriesControllerTest extends ApiTester
     $project = factory(Project::class)->create();
     $project->users()->attach($this->connectedUser->id);
 
-    $category = factory(Category::class)->make([
-      'project_id' => 0
-    ]);
+    $category = factory(Category::class)->make();
     $data = $category->toArray();
 
-    $response = $this->postJson($this->createUrl($this->url), $data);
+    $response = $this->postJson($this->createUrl($this->indexUrl, 0), $data);
 
     $response->assertStatus(404);
   }
@@ -319,8 +306,7 @@ class CategoriesControllerTest extends ApiTester
     $response = $this->putJson($this->createUrl($this->url, $category->id), [
       'id' => $category->id,
       'title' => 'New Title',
-      'color' => '#ffffff',
-      'project_id' => $project->id
+      'color' => '#ffffff'
     ]);
 
     $response->assertStatus(200);
@@ -391,28 +377,10 @@ class CategoriesControllerTest extends ApiTester
 
     $response = $this->putJson($this->createUrl($this->url, $category->id), [
       'id' => $category->id,
-      'title' => 'New title',
-      'project_id' => $project->id
+      'title' => 'New title'
     ]);
 
     $response->assertStatus(403);
-  }
-
-  /** @test */
-  public function it_updates_the_category_404_if_project_not_found() {
-    $project = factory(Project::class)->create();
-    $project->users()->attach($this->connectedUser->id);
-    $category = factory(Category::class)->create([
-      'project_id' => $project->id
-    ]);
-
-    $response = $this->putJson($this->createUrl($this->url, $category->id), [
-      'id' => 0,
-      'title' => 'New title',
-      'project_id' => 0
-    ]);
-
-    $response->assertStatus(404);
   }
 
   /** @test */

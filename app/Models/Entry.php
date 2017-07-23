@@ -31,7 +31,6 @@ class Entry extends ApiModel
     'title' => ['required'],
     'price' => ['required', 'integer', 'min:0'],
     'date' => ['required', 'date'],
-    'project_id' => ['required', 'exists:projects,id'],
     'category_id' => ['required', 'exists:categories,id']
   ];
 

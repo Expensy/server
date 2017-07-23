@@ -20,10 +20,10 @@ class ProjectMiddleware
   public function handle($request, Closure $next) {
     $project = null;
 
-    if (!is_null($request->input('project_id')) || !is_null($request->id)) {
+    if (!is_null($request->projectId) || !is_null($request->id)) {
       // for creation/update of nested resource
-      if (!is_null($request->input('project_id'))) {
-        $project = Project::find($request->input('project_id'));
+      if (!is_null($request->projectId)) {
+        $project = Project::find($request->projectId);
       }
 
       // for index/show of nested resources
