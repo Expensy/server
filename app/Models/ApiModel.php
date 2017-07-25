@@ -31,6 +31,8 @@ class ApiModel extends Model
 
   protected $errors;
 
+  protected $errorMessages;
+
   /**
    * Validate data from validation rules
    *
@@ -71,10 +73,20 @@ class ApiModel extends Model
       })->all();
     })->all();
 
-    $validator = Validator::make($data, $rules);
+    $validator = Validator::make($data, $rules, $this->errorMessages);
 
     if ($validator->fails()) {
-      $this->errors = $validator->failed();
+      $errorKeys = $validator->failed();
+      $errorMessages = $validator->errors()->messages();
+
+      $this->errors = collect($errorMessages)->map(function ($error, $field) use ($errorKeys) {
+        $errorKeysByField = $errorKeys[$field];
+        return collect($error)->map(function ($message, $index) use ($errorKeysByField, $field) {
+          $key = strtolower(preg_replace('/[A-Z]/', '_\\0', lcfirst(array_keys($errorKeysByField)[$index])));
+
+          return [$key => $message];
+        });
+      })->all();;
 
       return false;
     }

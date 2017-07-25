@@ -34,6 +34,14 @@ class Entry extends ApiModel
     'category_id' => ['required', 'exists:categories,id']
   ];
 
+  protected $errorMessages = [
+    'required' => 'The :attribute field is required.',
+    'integer' => 'The :attribute must be an integer',
+    'min' => 'The :attribute must have a minimum value of 0',
+    'date' => 'The :attribute must be a date with the following format YYYY-MM-dd',
+    'exists' => 'The :attribute must exist in the database'
+  ];
+
   public function project() {
     return $this->belongsTo('App\Models\Project');
   }

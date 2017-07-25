@@ -27,6 +27,12 @@ class Project extends ApiModel
     'currency' => ['required', 'currency'],
   ];
 
+  protected $errorMessages = [
+    'required' => 'The :attribute field is required.',
+    'unique_project_name' => 'The :attribute must be unique',
+    'currency' => 'The :attribute must be a valid ISO_4217 currency code'
+  ];
+
   public function users() {
     return $this->belongsToMany('App\Models\User')->orderBy('last_name', 'asc');
   }

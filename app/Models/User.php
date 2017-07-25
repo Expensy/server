@@ -53,6 +53,14 @@ class User extends ApiModel implements AuthenticatableContract, AuthorizableCont
     'password_old' => ['old_password', 'required_with:password']
   ];
 
+  protected $errorMessages = [
+    'required' => 'The :attribute field is required.',
+    'email' => 'The :attribute must be a valid email address',
+    'unique' => 'The :attribute must be unique',
+    'confirmed' => 'The :attribute must be confirmed',
+    'old_password' => 'The :attribute is incorrect'
+  ];
+
   public function projects() {
     return $this->belongsToMany('App\Models\Project')->orderBy('title', 'asc');
   }

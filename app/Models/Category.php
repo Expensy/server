@@ -30,6 +30,15 @@ class Category extends ApiModel
     'by_default' => ['boolean', 'one_default_category:{project_id},{id}']
   ];
 
+  protected $errorMessages = [
+    'required' => 'The :attribute field is required.',
+    'one_default_category' => 'Only one default category per project',
+    'unique' => 'The :attribute must be unique',
+    'exists' => 'The :attribute must exist in the database',
+    'boolean' => 'The :attribute must be a boolean',
+    'hex_color' => 'The :attribute must be in the hexadecimal format'
+  ];
+
   public function project() {
     return $this->belongsTo('App\Models\Project');
   }
