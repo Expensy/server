@@ -25,7 +25,7 @@ class Category extends ApiModel
   ];
 
   protected $rulesForUpdate = [
-    'title' => ['required', 'unique:categories,title,NULL,id,project_id,{project_id}'],
+    'title' => ['required', 'unique:categories,title,{id},id,project_id,{project_id}'],
     'color' => ['required', 'hex_color'],
     'by_default' => ['boolean', 'one_default_category:{project_id},{id}']
   ];

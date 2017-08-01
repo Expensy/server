@@ -80,7 +80,7 @@ class UsersController extends ApiController
    * @return Response
    */
   public function show(Request $request, $id) {
-    if ($id === "current") {
+    if ($id === "me") {
       $user = JWTAuth::parseToken()->toUser();
     } else {
       $user = $this->userRepository->find($id);

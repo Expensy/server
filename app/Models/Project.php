@@ -23,7 +23,7 @@ class Project extends ApiModel
     'currency' => ['required', 'currency'],
   ];
   protected $rulesForUpdate = [
-    'title' => ['required', 'unique_project_name'],
+    'title' => ['required', 'unique_project_name:{id}'],
     'currency' => ['required', 'currency'],
   ];
 

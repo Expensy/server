@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
@@ -23,7 +24,11 @@ class ValidationExtensionServiceProvider extends ServiceProvider
         return true;
       }
 
-      return !collect($projects)->contains(function ($project) use ($value) {
+      return !collect($projects)->contains(function ($project) use ($value, $parameters) {
+        if (isset($parameters[1])) {
+          return $project->title == $value && $project->id != $parameters[0];
+        }
+
         return $project->title == $value;
       });
     });
@@ -34,17 +39,12 @@ class ValidationExtensionServiceProvider extends ServiceProvider
       }
 
       $project = Project::find($parameters[0]);
-      $category = Project::find($parameters[0]);
 
-      if (is_null($project) && is_null($category)) {
+      if (is_null($project)) {
         return false;
       }
 
-      $categories = !is_null($project) ?
-        $project->categories->all() :
-        $category->project->categories->all();
-
-      return collect($categories)->contains(function ($category) use ($parameters) {
+      return $project->categories->contains(function ($category) use ($parameters) {
         if (isset($parameters[1])) {
           return $category->by_default == true && $category->id != $parameters[1];
         }
@@ -53,11 +53,11 @@ class ValidationExtensionServiceProvider extends ServiceProvider
       });
     });
 
-    Validator::extend('hex_color', function ($attribute, $value, $parameters) {
+    Validator::extend('hex_color', function ($attribute, $value) {
       return preg_match("/#[A-Fa-f0-9]{6}/", $value);
     });
 
-    Validator::extend('currency', function ($attribute, $value, $parameters) {
+    Validator::extend('currency', function ($attribute, $value) {
       /**
        * From the Faker library
        * @link http://en.wikipedia.org/wiki/ISO_4217

@@ -75,7 +75,7 @@ class UsersControllerTest extends ApiTester
 
   /** @test */
   public function it_fetches_the_connected_user() {
-    $response = $this->getJson($this->createUrl($this->url, "current"));
+    $response = $this->getJson($this->createUrl($this->url, "me"));
 
     $user = Auth::user();
     $response->assertSuccessful();
