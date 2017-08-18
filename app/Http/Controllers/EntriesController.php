@@ -6,8 +6,8 @@ use App\Repositories\CategoryRepository;
 use App\Repositories\EntryRepository;
 use App\Repositories\ProjectRepository;
 use App\Transformers\EntryTransformer;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 
 class EntriesController extends ApiController
 {
@@ -33,7 +33,7 @@ class EntriesController extends ApiController
    * @param Request $request
    * @param int $projectId
    *
-   * @return Response
+   * @return JsonResponse
    */
   public function index(Request $request, int $projectId) {
     $filters = array_merge($request->all(), ['project_id' => $projectId]);
@@ -49,7 +49,7 @@ class EntriesController extends ApiController
    *
    * @param Request $request
    * @param int $projectId
-   * @return Response
+   * @return JsonResponse
    */
   public function store(Request $request, int $projectId) {
     $inputs = $request->all();
@@ -73,7 +73,7 @@ class EntriesController extends ApiController
    * @param Request $request
    * @param         $id
    *
-   * @return Response
+   * @return JsonResponse
    * @internal param int $id
    *
    */
@@ -94,7 +94,7 @@ class EntriesController extends ApiController
    * @param Request $request
    * @param         $id
    *
-   * @return Response
+   * @return JsonResponse
    * @internal param int $id
    *
    */
@@ -125,7 +125,7 @@ class EntriesController extends ApiController
    * @param Request $request
    * @param         $id
    *
-   * @return Response
+   * @return JsonResponse
    * @internal param int $id
    *
    */
