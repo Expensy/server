@@ -32,6 +32,26 @@ class EntryRepository extends BaseRepository
       ->paginate($limit);
   }
 
+  public function stats(Array $filters) {
+    $project = $this->getProject($filters['project_id']);
+
+    $entries = $this->filter($filters);
+
+    $categories = $project->categories
+      ->map(function ($item) use ($entries) {
+        return [
+          'id' => $item->id,
+          'title' => $item->title,
+          'total' => $entries->where('category_id', $item->id)->sum('price')
+        ];
+      });
+
+    return [
+      'total' => $entries->sum('price'),
+      'categories' => $categories->all()
+    ];
+  }
+
 
   private function getProject($projectId) {
     return $this->projectRepository->find($projectId);

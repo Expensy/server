@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Entry;
 use App\Models\Project;
 use App\Models\User;
+use Carbon\Carbon;
 use Helpers\AuthEnum;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -35,7 +36,10 @@ class EntriesControllerTest extends ApiTester
       'project_id' => $project->id
     ]);
 
-    $response = $this->getJson($this->createUrl($this->indexUrl, $project->id));
+    $response = $this->getJson($this->createUrl($this->indexUrl, $project->id), [
+      'start_date' => Carbon::now()->subDay(1)->toDateString(),
+      'end_date' => Carbon::now()->toDateString()
+    ]);
 
     $response->assertSuccessful();
     $response->assertJsonStructure([
@@ -44,8 +48,29 @@ class EntriesControllerTest extends ApiTester
           'id', 'title', 'price', 'content'
         ]
       ],
+      'stats',
       'paginate'
     ]);
+  }
+
+
+  /** @test */
+  public function it_fetches_entries_400_if_wrong_parameters() {
+    $project = factory(Project::class)->create();
+    $project->users()->attach($this->connectedUser->id);
+
+    $category = factory(Category::class)->create([
+      'project_id' => $project->id
+    ]);
+
+    factory(Entry::class, 3)->create([
+      'category_id' => $category->id,
+      'project_id' => $project->id
+    ]);
+
+    $response = $this->getJson($this->createUrl($this->indexUrl, $project->id));
+
+    $response->assertStatus(400);
   }
 
   /** @test */
@@ -64,7 +89,10 @@ class EntriesControllerTest extends ApiTester
 
     $response = $this
       ->setAuthentication(AuthEnum::NONE)
-      ->getJson($this->createUrl($this->indexUrl, $project->id));
+      ->getJson($this->createUrl($this->indexUrl, $project->id), [
+      'start_date' => Carbon::now()->subDay(1)->toDateString(),
+      'end_date' => Carbon::now()->toDateString()
+    ]);
 
     $response->assertStatus(400);
   }
@@ -85,7 +113,10 @@ class EntriesControllerTest extends ApiTester
 
     $response = $this
       ->setAuthentication(AuthEnum::WRONG)
-      ->getJson($this->createUrl($this->indexUrl, $project->id));
+      ->getJson($this->createUrl($this->indexUrl, $project->id), [
+      'start_date' => Carbon::now()->subDay(1)->toDateString(),
+      'end_date' => Carbon::now()->toDateString()
+    ]);
 
     $response->assertStatus(400);
   }
@@ -106,7 +137,10 @@ class EntriesControllerTest extends ApiTester
 
     $response = $this
       ->setAuthentication(AuthEnum::WRONG)
-      ->getJson($this->createUrl($this->indexUrl, 0));
+      ->getJson($this->createUrl($this->indexUrl, 0),[
+      'start_date' => Carbon::now()->subDay(1)->toDateString(),
+      'end_date' => Carbon::now()->toDateString()
+    ]);
 
     $response->assertStatus(400);
   }

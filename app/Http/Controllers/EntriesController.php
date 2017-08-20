@@ -8,6 +8,7 @@ use App\Repositories\ProjectRepository;
 use App\Transformers\EntryTransformer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class EntriesController extends ApiController
 {
@@ -37,10 +38,23 @@ class EntriesController extends ApiController
    */
   public function index(Request $request, int $projectId) {
     $filters = array_merge($request->all(), ['project_id' => $projectId]);
+
+    $validation = Validator::make($filters, [
+      'project_id' => 'required',
+      'start_date' => 'required',
+      'end_date' => 'required'
+    ]);
+
+    if ($validation->fails()) {
+      return $this->respondFailedValidation($validation->messages());
+    }
+
     $entries = $this->entryRepository->filter($filters);
+    $stats = $this->entryRepository->stats($filters);
 
     return $this->respondWithPagination($entries, [
-      'items' => $this->entryTransformer->transformCollection($entries->items())
+      'items' => $this->entryTransformer->transformCollection($entries->items()),
+      'stats' => $stats
     ]);
   }
 

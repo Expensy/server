@@ -44,13 +44,19 @@ return [
       'collation' => 'utf8mb4_unicode_ci',
       'prefix' => '',
       'strict' => true,
-      'engine' => null,
+      'engine' => null
+    ],
+
+    'phpunit' => [
+      'driver' => 'sqlite',
+      'database' => ':memory:',
+      'prefix' => ''
     ],
 
     'testing' => [
       'driver' => 'sqlite',
       'database' => database_path('database.sqlite'),
-      'prefix' => '',
+      'prefix' => ''
     ]
   ],
 
