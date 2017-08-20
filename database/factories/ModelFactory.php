@@ -30,7 +30,7 @@ $factory->define(App\Models\Project::class, function (Faker\Generator $faker) {
 
 $factory->define(App\Models\Category::class, function (Faker\Generator $faker) {
   return [
-    'title' => $faker->name,
+    'title' => $faker->word,
     'color' => $faker->hexcolor,
     'by_default' => $faker->boolean()
   ];
@@ -40,7 +40,7 @@ $factory->define(App\Models\Entry::class, function (Faker\Generator $faker) {
   return [
     'title' => $faker->name,
     'price' => $faker->numberBetween($min = 100, $max = 100000),
-    'date' => $faker->dateTime(),
+    'date' => $faker->date(),
     'content' => $faker->sentence()
   ];
 });
